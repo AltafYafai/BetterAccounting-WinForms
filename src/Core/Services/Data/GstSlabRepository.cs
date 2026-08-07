@@ -32,7 +32,7 @@ namespace BetterAccounting.Core.Services.Data
         {
             var countCmd = _connection.CreateCommand();
             countCmd.CommandText = "SELECT COUNT(1) FROM GstSlabs";
-            if ((long)await countCmd.ExecuteScalarAsync() > 0)
+            if ((long)(await countCmd.ExecuteScalarAsync() ?? 0L) > 0)
                 return;
 
             foreach (var rate in new[] { 0m, 5m, 12m, 18m, 28m })
@@ -76,7 +76,7 @@ namespace BetterAccounting.Core.Services.Data
 
             var idCmd = _connection.CreateCommand();
             idCmd.CommandText = "SELECT last_insert_rowid()";
-            slab.Id = (int)(long)await idCmd.ExecuteScalarAsync();
+            slab.Id = (int)(long)(await idCmd.ExecuteScalarAsync() ?? 0L);
         }
 
         public async Task UpdateAsync(GstSlab slab)

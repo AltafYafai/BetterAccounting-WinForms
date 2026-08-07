@@ -69,7 +69,7 @@ namespace BetterAccounting.Core.Services.Data
 
             var idCmd = _connection.CreateCommand();
             idCmd.CommandText = "SELECT last_insert_rowid()";
-            customer.Id = (int)(long)await idCmd.ExecuteScalarAsync();
+            customer.Id = (int)(long)(await idCmd.ExecuteScalarAsync() ?? 0L);
         }
 
         public async Task UpdateAsync(Customer customer)

@@ -126,5 +126,27 @@ namespace BetterAccounting.Core.Tests
             Assert.IsFalse(string.IsNullOrEmpty(manager.CurrentDbPath));
             Assert.IsTrue(File.Exists(manager.CurrentDbPath));
         }
+
+        [TestMethod]
+        public void Restore_ReturnsRemovedCompanyToActiveList()
+        {
+            var manager = CreateManager();
+            var company = manager.CreateCompany("Client A");
+            var originalId = company.Id;
+            var dbPath = company.DbFilePath;
+
+            manager.Remove(company.Id);
+            Assert.IsFalse(manager.Companies.Any(c => c.Name == "Client A"));
+
+            var removed = manager.GetRemovedCompanies();
+            Assert.AreEqual(1, removed.Count);
+
+            manager.RestoreRemovedCompany(removed[0]);
+
+            Assert.IsTrue(manager.Companies.Any(c => c.Id == originalId));
+            Assert.IsFalse(File.Exists(dbPath), "The database should have moved back into Companies.");
+            Assert.IsTrue(Directory.GetFiles(Path.Combine(_appDir, "RemovedCompanies"), "*.db").Length == 0);
+            Assert.IsTrue(File.Exists(manager.Companies.First(c => c.Id == originalId).DbFilePath));
+        }
     }
 }

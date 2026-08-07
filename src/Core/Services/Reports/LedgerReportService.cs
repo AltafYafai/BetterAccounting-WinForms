@@ -10,8 +10,8 @@ namespace BetterAccounting.Core.Services.Reports
     public class LedgerEntryViewModel
     {
         public DateTime Date { get; set; }
-        public string VoucherNo { get; set; }
-        public string Description { get; set; }
+        public string VoucherNo { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public decimal Debit { get; set; }
         public decimal Credit { get; set; }
         public decimal RunningBalance { get; set; }
@@ -19,7 +19,7 @@ namespace BetterAccounting.Core.Services.Reports
 
     public class LedgerReportResult
     {
-        public string AccountName { get; set; }
+        public string AccountName { get; set; } = string.Empty;
         public decimal OpeningBalance { get; set; }
         public List<LedgerEntryViewModel> Entries { get; set; } = new();
         public decimal ClosingBalance => Entries.LastOrDefault()?.RunningBalance ?? OpeningBalance;

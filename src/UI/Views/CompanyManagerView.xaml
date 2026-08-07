@@ -11,10 +11,14 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0" Margin="0,0,0,10">
-            <TextBlock DockPanel.Dock="Top" Text="Your companies (clients). Each one keeps its own books and prints its own invoices."
-                       TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,8"/>
-            <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}" Margin="0,0,0,10">
+<Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="1.4*"/>
+            </Grid.RowDefinitions>
+
+            <ListBox Grid.Row="0" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}" Margin="0,0,0,8">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
@@ -23,7 +27,19 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-        </DockPanel>
+
+            <TextBlock Grid.Row="1" Text="Removed (kept safe — restore to recover)" Foreground="Gray" Margin="0,0,0,4"/>
+
+            <ListBox Grid.Row="2" ItemsSource="{Binding RemovedItems}" SelectedItem="{Binding SelectedRemoved}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
 
         <StackPanel Grid.Row="1" Margin="0,0,0,10">
             <TextBlock Text="Add a new company / client"/>
@@ -49,6 +65,7 @@
             <Button DockPanel.Dock="Right" Content="Close" Command="{Binding CloseCommand}" Padding="10,4" Margin="8,0,0,0"/>
             <Button DockPanel.Dock="Right" Content="Remove (keeps backup)" Click="Remove_Click" Padding="10,4"/>
             <Button DockPanel.Dock="Right" Content="Activate" Command="{Binding ActivateCommand}" Padding="10,4" Margin="0,0,8,0"/>
+            <Button DockPanel.Dock="Right" Content="Restore removed" Command="{Binding RestoreCommand}" Padding="10,4" Margin="0,0,8,0"/>
             <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="Gray"/>
         </DockPanel>
     </Grid>

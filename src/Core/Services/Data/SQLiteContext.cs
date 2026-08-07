@@ -159,8 +159,8 @@ namespace BetterAccounting.Core.Services.Data
             AccountName = reader.GetString(reader.GetOrdinal("AccountName")),
             Type = Enum.Parse<EntryType>(reader.GetString(reader.GetOrdinal("Type"))),
             Amount = reader.GetDecimal(reader.GetOrdinal("Amount")),
-            Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? null : reader.GetString(reader.GetOrdinal("Description")),
-            ReferenceVoucherId = reader.IsDBNull(reader.GetOrdinal("ReferenceVoucherId")) ? null : reader.GetString(reader.GetOrdinal("ReferenceVoucherId")),
+            Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? "" : reader.GetString(reader.GetOrdinal("Description")),
+            ReferenceVoucherId = reader.IsDBNull(reader.GetOrdinal("ReferenceVoucherId")) ? "" : reader.GetString(reader.GetOrdinal("ReferenceVoucherId")),
             VoucherType = reader.IsDBNull(reader.GetOrdinal("VoucherType")) ? VoucherType.Journal : Enum.Parse<VoucherType>(reader.GetString(reader.GetOrdinal("VoucherType"))),
             Transporter = reader.IsDBNull(reader.GetOrdinal("Transporter")) ? "" : reader.GetString(reader.GetOrdinal("Transporter")),
             CreatedAt = DateTime.Parse(reader.GetString(reader.GetOrdinal("CreatedAt")))

@@ -114,7 +114,7 @@ namespace BetterAccounting.Core.Services
             var leftParsed = Version.TryParse(left, out var lv);
             var rightParsed = Version.TryParse(right, out var rv);
 
-            if (leftParsed && rightParsed)
+            if (leftParsed && rightParsed && lv != null && rv != null)
                 return lv.CompareTo(rv);
             return string.Compare(left, right, StringComparison.OrdinalIgnoreCase);
         }

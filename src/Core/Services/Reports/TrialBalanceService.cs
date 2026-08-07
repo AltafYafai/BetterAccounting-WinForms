@@ -8,7 +8,7 @@ namespace BetterAccounting.Core.Services.Reports
 {
     public class TrialBalanceRecord
     {
-        public string AccountName { get; set; }
+        public string AccountName { get; set; } = string.Empty;
         public decimal TotalDebits { get; set; }
         public decimal TotalCredits { get; set; }
     }

@@ -1,11 +1,9 @@
-using System.Collections.Generic;
+using System;
 
 namespace BetterAccounting.Core.Data.Models
 {
     public class Ledger
     {
-        public string Name { get; set; }
-        public decimal OpeningBalance { get; set; }
-        public List<LedgerEntry> Entries { get; set; } = new();
+        public string Name { get; set; } = string.Empty;
     }
 }

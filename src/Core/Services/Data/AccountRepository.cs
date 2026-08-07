@@ -71,7 +71,7 @@ namespace BetterAccounting.Core.Services.Data
             var cmd = _connection.CreateCommand();
             cmd.CommandText = "SELECT COUNT(1) FROM Accounts WHERE Name = $name";
             cmd.Parameters.AddWithValue("$name", name);
-            return (long)await cmd.ExecuteScalarAsync() > 0;
+            return (long)(await cmd.ExecuteScalarAsync() ?? 0L) > 0;
         }
 
         public async Task AddAsync(Account account)

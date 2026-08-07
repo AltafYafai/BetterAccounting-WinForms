@@ -208,6 +208,72 @@ _companies = _companies.Where(c => c.Id != id).ToList();
             });
         }
 
+        /// <summary>
+        /// Lists companies whose databases were moved to the RemovedCompanies folder.
+        /// </summary>
+        public List<RemovedCompanyInfo> GetRemovedCompanies()
+        {
+            var removed = new List<RemovedCompanyInfo>();
+            if (!Directory.Exists(_trashDir))
+                return removed;
+
+            foreach (var file in Directory.GetFiles(_trashDir, "*.db"))
+            {
+                var (name, id) = ParseRemovedFileName(Path.GetFileNameWithoutExtension(file));
+                var info = new RemovedCompanyInfo
+                {
+                    Id = id,
+                    Name = name,
+                    DbFilePath = file,
+                    RemovedAt = File.GetLastWriteTime(file)
+                };
+                removed.Add(info);
+            }
+
+            return removed;
+        }
+
+        /// <summary>Restores a previously removed company back into the active list.</summary>
+        public RemovedCompanyInfo? RestoreRemovedCompany(RemovedCompanyInfo removed)
+        {
+            if (removed == null || !File.Exists(removed.DbFilePath))
+                return null;
+
+            if (_companies.Any(c => c.Id == removed.Id))
+                return null;
+
+            Directory.CreateDirectory(_companiesDir);
+            var destination = Path.Combine(_companiesDir, $"{Guid.NewGuid():N}.db");
+            File.Move(removed.DbFilePath, destination);
+
+            _companies.Add(new CompanyInfo
+            {
+                Id = removed.Id,
+                Name = removed.Name,
+                DbFilePath = destination,
+                CreatedAt = DateTime.UtcNow
+            });
+            Save();
+            return removed;
+        }
+
+        private static (string Name, Guid Id) ParseRemovedFileName(string fileName)
+        {
+            // Files are saved as "<safeName>_<guid32>.db"
+            var id = Guid.Empty;
+            if (fileName != null && fileName.Length > 33)
+            {
+                var idText = fileName.Substring(fileName.Length - 32);
+                Guid.TryParse(idText, out id);
+            }
+
+            var name = fileName ?? "";
+            if (id != Guid.Empty && name.Length > 33)
+                name = name.Substring(0, name.Length - 33).Replace('_', ' ');
+
+            return (string.IsNullOrWhiteSpace(name) ? "Company" : name, id);
+        }
+
         private void Save()
         {
             var state = new CompanyRegistryState

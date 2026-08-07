@@ -30,17 +30,37 @@ namespace BetterAccounting.UI.Views
 
         private void AddAccount_Click(object sender, RoutedEventArgs e)
         {
-            // Would open AccountEditorViewModel dialog
+            var dialog = new AccountEditorView(new ViewModels.AccountEditorViewModel(_repository));
+            if (dialog.ShowDialog() == true)
+                _ = LoadAccountsAsync();
         }
 
         private void EditAccount_Click(object sender, RoutedEventArgs e)
         {
-            // Would edit selected account
+            if (AccountsGrid.SelectedItem is not Core.Data.Models.Account selected)
+                return;
+
+            var dialog = new AccountEditorView(new ViewModels.AccountEditorViewModel(_repository, selected));
+            if (dialog.ShowDialog() == true)
+                _ = LoadAccountsAsync();
         }
 
         private void DeleteAccount_Click(object sender, RoutedEventArgs e)
         {
-            // Would delete selected account
+            if (AccountsGrid.SelectedItem is not Core.Data.Models.Account selected)
+                return;
+
+            var result = MessageBox.Show(
+                $"Delete account '{selected.Name}'?\n\nIt will be hidden (soft-deleted) and can be restored by re-adding it.",
+                "Delete Account",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            _ = _repository.DeleteAsync(selected.Id);
+            _ = LoadAccountsAsync();
         }
     }
 }

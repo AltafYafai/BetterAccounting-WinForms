@@ -53,7 +53,9 @@ namespace BetterAccounting.Core.Services.Data
                     else if (entry.FullName == "sync.cfg")
                     {
                         var configPath = GetConfigPath();
-                        Directory.CreateDirectory(Path.GetDirectoryName(configPath));
+                        var configDir = Path.GetDirectoryName(configPath);
+                        if (!string.IsNullOrEmpty(configDir))
+                            Directory.CreateDirectory(configDir);
                         entry.ExtractToFile(configPath, true);
                     }
                 }

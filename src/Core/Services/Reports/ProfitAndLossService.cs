@@ -9,7 +9,7 @@ namespace BetterAccounting.Core.Services.Reports
 {
     public class ProfitAndLossRecord
     {
-        public string AccountName { get; set; }
+        public string AccountName { get; set; } = string.Empty;
         public decimal Amount { get; set; }
         public EntryType Type { get; set; }
     }

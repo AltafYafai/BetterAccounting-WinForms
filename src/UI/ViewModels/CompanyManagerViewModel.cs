@@ -14,7 +14,9 @@ namespace BetterAccounting.UI.ViewModels
         private readonly CompanyManager _manager;
 
         private ObservableCollection<CompanyItem> _items = new();
+        private ObservableCollection<RemovedCompanyInfo> _removedItems = new();
         private CompanyItem? _selectedItem;
+        private RemovedCompanyInfo? _selectedRemoved;
         private string _newCompanyName = "";
         private string _renameName = "";
         private string _statusMessage = "Manage your companies. Each company keeps its own data.";
@@ -27,6 +29,7 @@ namespace BetterAccounting.UI.ViewModels
             AddCompanyCommand = new RelayCommand(async () => await AddCompanyAsync(), () => !string.IsNullOrWhiteSpace(NewCompanyName));
             ActivateCommand = new RelayCommand(ActivateSelected, () => SelectedItem != null && !SelectedItem.IsActive);
             RenameCommand = new RelayCommand(RenameSelected, () => SelectedItem != null && !string.IsNullOrWhiteSpace(RenameName));
+            RestoreCommand = new RelayCommand(RestoreSelectedRemoved, () => SelectedRemoved != null);
             CloseCommand = new RelayCommand(() => OnClose?.Invoke());
 
             LoadItems();
@@ -45,6 +48,23 @@ namespace BetterAccounting.UI.ViewModels
                 }));
 
             SelectedItem = Items.FirstOrDefault(i => i.Id == activeId) ?? Items.FirstOrDefault();
+
+            RemovedItems = new ObservableCollection<RemovedCompanyInfo>(_manager.GetRemovedCompanies());
+            SelectedRemoved = RemovedItems.FirstOrDefault();
+        }
+
+        private void RestoreSelectedRemoved()
+        {
+            if (SelectedRemoved == null)
+                return;
+
+            var restored = _manager.RestoreRemovedCompany(SelectedRemoved);
+            if (restored != null)
+                StatusMessage = $"Restored '{restored.Name}' back into your companies. Use Activate to make it current.";
+            else
+                StatusMessage = "Could not restore that company.";
+
+            LoadItems();
         }
 
         private async Task AddCompanyAsync()
@@ -108,6 +128,22 @@ namespace BetterAccounting.UI.ViewModels
             set => SetProperty(ref _items, value);
         }
 
+        public ObservableCollection<RemovedCompanyInfo> RemovedItems
+        {
+            get => _removedItems;
+            set => SetProperty(ref _removedItems, value);
+        }
+
+        public RemovedCompanyInfo? SelectedRemoved
+        {
+            get => _selectedRemoved;
+            set
+            {
+                if (SetProperty(ref _selectedRemoved, value))
+                    RestoreCommand.RaiseCanExecuteChanged();
+            }
+        }
+
         public CompanyItem? SelectedItem
         {
             get => _selectedItem;
@@ -157,6 +193,7 @@ namespace BetterAccounting.UI.ViewModels
         public RelayCommand AddCompanyCommand { get; }
         public RelayCommand ActivateCommand { get; }
         public RelayCommand RenameCommand { get; }
+        public RelayCommand RestoreCommand { get; }
         public RelayCommand CloseCommand { get; }
 
         public Action? OnClose;

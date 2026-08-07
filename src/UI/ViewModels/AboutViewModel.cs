@@ -4,6 +4,7 @@ using BetterAccounting.Core.Services.Data;
 using BetterAccounting.UI.Models;
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ namespace BetterAccounting.UI.ViewModels
 
             CheckForUpdatesCommand = new RelayCommand(async () => await CheckForUpdatesAsync(), () => !IsBusy);
             DownloadCommand = new RelayCommand(async () => await DownloadAsync(), () => UpdateAvailable);
+            ApplyUpdateCommand = new RelayCommand(async () => await ApplyUpdateAsync(), () => !string.IsNullOrEmpty(DownloadedPath));
             OpenReleasesCommand = new RelayCommand(OpenReleases);
             ShowDownloadedFileCommand = new RelayCommand(ShowDownloadedFile, () => !string.IsNullOrEmpty(DownloadedPath));
             CloseCommand = new RelayCommand(() => OnClose?.Invoke());
@@ -118,12 +120,100 @@ namespace BetterAccounting.UI.ViewModels
 
                 var backupDir = Path.Combine(appData, "BetterAccounting", "PreUpdateBackups");
                 var service = new BackupService(dbPath, backupDir);
-                return await service.CreateBackupAsync($"preupdate_{DateTime.Now:yyyyMMdd_HHmmss}");
+                var path = await service.CreateBackupAsync($"preupdate_{DateTime.Now:yyyyMMdd_HHmmss}");
+                PruneDirectory(backupDir, keep: 10);
+                return path;
             }
             catch
             {
                 return null;
             }
+        }
+
+        // Keeps only the most recent 'keep' files, deleting older ones so the folder never grows unbounded.
+        private static void PruneDirectory(string directory, int keep)
+        {
+            try
+            {
+                if (!Directory.Exists(directory))
+                    return;
+
+                var files = Directory.GetFiles(directory).OrderByDescending(f => f).Skip(keep).ToArray();
+                foreach (var file in files)
+                    File.Delete(file);
+            }
+            catch
+            {
+            }
+        }
+
+        private async Task ApplyUpdateAsync()
+        {
+            var newPath = DownloadedPath;
+            if (string.IsNullOrEmpty(newPath) || !File.Exists(newPath))
+            {
+                StatusMessage = "No downloaded installer found. Download the update first.";
+                return;
+            }
+
+            var currentExe = Environment.ProcessPath;
+            if (string.IsNullOrEmpty(currentExe) ||
+                !currentExe.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+            {
+                StatusMessage = "Could not locate this app's executable. Close the app and run the downloaded file manually.";
+                return;
+            }
+
+            var directory = Path.GetDirectoryName(currentExe);
+            if (string.IsNullOrEmpty(directory))
+            {
+                StatusMessage = "Could not locate this app's folder. Close the app and run the downloaded file manually.";
+                return;
+            }
+
+            var exeName = Path.GetFileName(currentExe);
+            var cmdPath = Path.Combine(directory, "apply-update.cmd");
+
+            string[] script =
+            {
+                "@echo off",
+                "cd /d \"%~dp0\"",
+                "ping 127.0.0.1 -n 4 >nul",
+                "taskkill /IM \"" + exeName + "\" /F >nul 2>&1",
+                "timeout /t 1 /nobreak >nul",
+                "copy /y \"" + exeName + "\" \"" + exeName + ".bak\" >nul 2>&1",
+                "copy /y \"" + newPath + "\" \"" + exeName + "\" >nul 2>&1",
+                "start \"\" \"" + exeName + "\"",
+                "del /q /f \"%~f0\""
+            };
+
+            try
+            {
+                await File.WriteAllLinesAsync(cmdPath, script);
+            }
+            catch
+            {
+                StatusMessage = "No write access where the app is installed, so it cannot replace itself. Close the app and run the downloaded file manually.";
+                return;
+            }
+
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = cmdPath,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                });
+            }
+            catch
+            {
+                StatusMessage = "Could not start the updater. Close the app and run the downloaded file manually.";
+                return;
+            }
+
+            StatusMessage = "Applying update — this app will close and restart with the new version.";
+            System.Windows.Application.Current?.Shutdown();
         }
 
         private void ShowDownloadedFile()
@@ -219,6 +309,7 @@ namespace BetterAccounting.UI.ViewModels
 
         public RelayCommand CheckForUpdatesCommand { get; }
         public RelayCommand DownloadCommand { get; }
+        public RelayCommand ApplyUpdateCommand { get; }
         public RelayCommand OpenReleasesCommand { get; }
         public RelayCommand ShowDownloadedFileCommand { get; }
         public RelayCommand CloseCommand { get; }

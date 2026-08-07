@@ -77,7 +77,7 @@ namespace BetterAccounting.Core.Services.Data
 
             var idCmd = _connection.CreateCommand();
             idCmd.CommandText = "SELECT last_insert_rowid()";
-            template.Id = (int)(long)await idCmd.ExecuteScalarAsync();
+            template.Id = (int)(long)(await idCmd.ExecuteScalarAsync() ?? 0L);
         }
 
         public async Task UpdateAsync(PrintTemplate template)

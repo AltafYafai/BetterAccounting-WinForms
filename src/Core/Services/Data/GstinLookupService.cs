@@ -12,7 +12,7 @@ namespace BetterAccounting.Core.Services.Data
         private readonly HttpClient _httpClient;
         private readonly string _endpoint;
 
-        public GstinLookupService(HttpClient httpClient, string endpoint = null)
+        public GstinLookupService(HttpClient httpClient, string? endpoint = null)
         {
             _httpClient = httpClient ?? new HttpClient();
             _endpoint = endpoint ?? "https://cloud.octagst.com/api/octa/gst/getgstin?gstin=";
@@ -72,7 +72,7 @@ namespace BetterAccounting.Core.Services.Data
             return result;
         }
 
-        private static string JoinNonEmpty(string separator, params string[] values)
+        private static string JoinNonEmpty(string separator, params string?[] values)
         {
             var parts = values.Where(v => !string.IsNullOrWhiteSpace(v)).ToArray();
             return string.Join(separator, parts);
