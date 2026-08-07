@@ -16,7 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
+    <AssemblyAttribute Include="System.Runtime.Versioning.SupportedOSPlatformAttribute" />
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
   </ItemGroup>
 
 </Project>

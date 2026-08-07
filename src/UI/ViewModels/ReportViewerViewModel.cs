@@ -1,8 +1,8 @@
-using BetterAccounting.Core.Data.Models;
 using BetterAccounting.Core.Services.Data;
 using BetterAccounting.Core.Services.Reports;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -25,12 +25,11 @@ namespace BetterAccounting.UI.ViewModels
         private readonly ProfitAndLossService _profitAndLossService;
         private readonly LedgerReportService _ledgerReportService;
 
-        private ReportType _selectedReport = ReportType.TrialBalance;
+        private int _selectedReportIndex = 0;
         private DateTime _fromDate = DateTime.Today.AddMonths(-1);
         private DateTime _toDate = DateTime.Today;
         private string _selectedAccountName;
         private ObservableCollection<string> _accountNames;
-        private ObservableCollection<TrialBalanceRecord> _trialBalanceData;
         private ObservableCollection<ProfitAndLossRecord> _pnlData;
         private object _reportData;
 
@@ -54,6 +53,14 @@ namespace BetterAccounting.UI.ViewModels
             ExportCommand = new RelayCommand(async () => await ExportAsync(), () => ReportData != null);
             LoadAccountsCommand = new RelayCommand(async () => await LoadAccountsAsync());
 
+            Reports = new ObservableCollection<string>
+            {
+                "Trial Balance",
+                "Balance Sheet",
+                "Profit & Loss",
+                "Ledger"
+            };
+
             _ = LoadAccountsAsync();
         }
 
@@ -65,11 +72,17 @@ namespace BetterAccounting.UI.ViewModels
 
         private async Task GenerateReportAsync()
         {
-            switch (SelectedReport)
+            ReportType reportType = (ReportType)SelectedReportIndex;
+            
+            switch (reportType)
             {
                 case ReportType.TrialBalance:
                     var records = await _trialBalanceService.GenerateTrialBalanceAsync(FromDate, ToDate);
-                    ReportData = new ObservableCollection<TrialBalanceRecord>(records);
+                    ReportData = new ObservableCollection<dynamic>(records.Select(r => new {
+                        AccountName = r.AccountName,
+                        TotalDebits = r.TotalDebits,
+                        TotalCredits = r.TotalCredits
+                    }));
                     break;
                 case ReportType.ProfitAndLoss:
                     var pnl = await _profitAndLossService.GenerateAsync(FromDate, ToDate);
@@ -80,11 +93,16 @@ namespace BetterAccounting.UI.ViewModels
                     if (!string.IsNullOrEmpty(SelectedAccountName))
                     {
                         var ledger = await _ledgerReportService.GenerateForAccountAsync(SelectedAccountName, FromDate, ToDate);
-                        ReportData = ledger;
+                        ReportData = ledger.Entries;
                     }
                     break;
                 case ReportType.BalanceSheet:
                     var (assets, liabilities, equity) = await _financialStatementService.GetBalanceSheetTotalsAsync(ToDate);
+                    ReportData = new[] {
+                        new { Category = "Assets", Amount = assets },
+                        new { Category = "Liabilities", Amount = liabilities },
+                        new { Category = "Equity", Amount = equity }
+                    };
                     break;
             }
             ((RelayCommand)ExportCommand).RaiseCanExecuteChanged();
@@ -94,19 +112,26 @@ namespace BetterAccounting.UI.ViewModels
         {
             var saveDialog = new Microsoft.Win32.SaveFileDialog
             {
-                Filter = "Excel Files|*.xlsx|PDF Files|*.pdf|CSV Files|*.csv"
+                Filter = "Text Files|*.txt|CSV Files|*.csv"
             };
             if (saveDialog.ShowDialog() == true)
             {
-                // In real implementation, use EPPlus for Excel or iTextSharp for PDF
                 await System.IO.File.WriteAllTextAsync(saveDialog.FileName, "Report data would be exported here");
             }
         }
 
-        public ReportType SelectedReport
+        public ObservableCollection<string> Reports
         {
-            get => _selectedReport;
-            set => SetProperty(ref _selectedReport, value);
+            get => _reports;
+            set => SetProperty(ref _reports, value);
+        }
+
+        private ObservableCollection<string> _reports;
+
+        public int SelectedReportIndex
+        {
+            get => _selectedReportIndex;
+            set => SetProperty(ref _selectedReportIndex, value);
         }
 
         public DateTime FromDate
@@ -131,12 +156,6 @@ namespace BetterAccounting.UI.ViewModels
         {
             get => _accountNames;
             set => SetProperty(ref _accountNames, value);
-        }
-
-        public ObservableCollection<TrialBalanceRecord> TrialBalanceData
-        {
-            get => _trialBalanceData;
-            set => SetProperty(ref _trialBalanceData, value);
         }
 
         public ObservableCollection<ProfitAndLossRecord> PnlData

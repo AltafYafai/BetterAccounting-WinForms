@@ -12,15 +12,15 @@
 
         <!-- Report Controls -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <ComboBox Width="150" ItemsSource="{Binding Source={x:Static Member=System:Enum-Values}}" 
-                      SelectedItem="{Binding SelectedReport}" Margin="5"/>
+            <ComboBox Width="150" ItemsSource="{Binding Reports}" 
+                      SelectedIndex="{Binding SelectedReportIndex}" Margin="5"/>
             <DatePicker Width="120" SelectedDate="{Binding FromDate}" Margin="5"/>
             <DatePicker Width="120" SelectedDate="{Binding ToDate}" Margin="5"/>
             <Button Content="Generate" Command="{Binding GenerateReportCommand}" Margin="5"/>
             
             <ComboBox Width="200" ItemsSource="{Binding AccountNames}" 
                       SelectedItem="{Binding SelectedAccountName}" 
-                      Visibility="{Binding SelectedReport, ConverterParameter=Ledger, Converter={StaticResource EnumToVisibilityConverter}}" 
+                      Visibility="{Binding SelectedReportIndex, ConverterParameter=3, Converter={StaticResource IntToVisibilityConverter}}" 
                       Margin="5"/>
         </StackPanel>
 
@@ -31,13 +31,12 @@
 
         <!-- Report Grid -->
         <DataGrid Grid.Row="2" ItemsSource="{Binding ReportData}" 
-                  AutoGenerateColumns="True" IsReadOnly="True" 
-                  Margin="0,0,0,10"/>
+                  AutoGenerateColumns="True" IsReadOnly="True" Margin="0,0,0,10"/>
 
         <!-- Status Bar -->
         <StatusBar Grid.Row="3">
             <StatusBarItem>
-                <TextBlock Text="{Binding SelectedReport}"/>
+                <TextBlock Text="{Binding SelectedReportIndex}"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>

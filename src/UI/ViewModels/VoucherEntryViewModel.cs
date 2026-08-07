@@ -40,6 +40,8 @@ namespace BetterAccounting.UI.ViewModels
             CancelCommand = new RelayCommand(() => OnCancel?.Invoke());
             LoadAccountsCommand = new RelayCommand(async () => await LoadAccountsAsync());
             
+            EntryTypes = new ObservableCollection<EntryType>(Enum.GetValues<EntryType>());
+            
             _ = LoadAccountsAsync();
         }
 
@@ -174,6 +176,14 @@ namespace BetterAccounting.UI.ViewModels
             get => _accounts;
             set => SetProperty(ref _accounts, value);
         }
+
+        public ObservableCollection<EntryType> EntryTypes
+        {
+            get => _entryTypes;
+            set => SetProperty(ref _entryTypes, value);
+        }
+
+        private ObservableCollection<EntryType> _entryTypes;
 
         public bool IsDirty
         {
