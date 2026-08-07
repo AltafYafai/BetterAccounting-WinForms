@@ -38,6 +38,9 @@ namespace BetterAccounting.UI.ViewModels
 
             LoadDataCommand = new RelayCommand(async () => await RefreshAsync());
             AddEntryCommand = new RelayCommand(OpenVoucherEntry);
+            OpenBankEntryCommand = new RelayCommand(() => OpenVoucherEntry(VoucherType.Bank));
+            OpenDebitNoteCommand = new RelayCommand(() => OpenVoucherEntry(VoucherType.DebitNote));
+            OpenCreditNoteCommand = new RelayCommand(() => OpenVoucherEntry(VoucherType.CreditNote));
             OpenSyncSettingsCommand = new RelayCommand(OpenSyncSettings);
             ToggleThemeCommand = new RelayCommand(SwitchTheme);
             OpenReportsCommand = new RelayCommand(OpenReports);
@@ -68,8 +71,13 @@ namespace BetterAccounting.UI.ViewModels
 
         private void OpenVoucherEntry()
         {
-            var view = new Views.VoucherEntryView();
-            var window = new Window { Content = view, Title = "Voucher Entry", Width = 700, Height = 500 };
+            OpenVoucherEntry(BetterAccounting.Core.Data.Models.VoucherType.Journal);
+        }
+
+        private void OpenVoucherEntry(VoucherType voucherType)
+        {
+            var view = new Views.VoucherEntryView(voucherType);
+            var window = new Window { Content = view, Title = "Voucher Entry", Width = 720, Height = 520 };
             window.Show();
         }
 
@@ -148,6 +156,9 @@ namespace BetterAccounting.UI.ViewModels
 
         public ICommand LoadDataCommand { get; }
         public ICommand AddEntryCommand { get; }
+        public ICommand OpenBankEntryCommand { get; }
+        public ICommand OpenDebitNoteCommand { get; }
+        public ICommand OpenCreditNoteCommand { get; }
         public ICommand OpenSyncSettingsCommand { get; }
         public ICommand ToggleThemeCommand { get; }
         public ICommand OpenReportsCommand { get; }

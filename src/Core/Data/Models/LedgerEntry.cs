@@ -4,6 +4,8 @@ namespace BetterAccounting.Core.Data.Models
 {
     public enum EntryType { Debit, Credit }
 
+    public enum VoucherType { Cash, Bank, Journal, Receipt, Payment, Contra, DebitNote, CreditNote }
+
     public class LedgerEntry
     {
         public long Id { get; set; }
@@ -14,6 +16,8 @@ namespace BetterAccounting.Core.Data.Models
         public decimal Amount { get; set; }
         public string Description { get; set; }
         public string ReferenceVoucherId { get; set; }
+        public VoucherType VoucherType { get; set; } = VoucherType.Journal;
+        public string Transporter { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

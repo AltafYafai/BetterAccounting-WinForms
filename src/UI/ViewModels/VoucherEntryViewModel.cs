@@ -27,8 +27,14 @@ namespace BetterAccounting.UI.ViewModels
         private decimal _amount;
         private ObservableCollection<Account> _accounts;
         private bool _isDirty;
+        private VoucherType _selectedVoucherType = VoucherType.Journal;
+        private string _transporter = "";
 
-        public VoucherEntryViewModel()
+        public VoucherEntryViewModel() : this(VoucherType.Journal)
+        {
+        }
+
+        public VoucherEntryViewModel(VoucherType initialType)
         {
             var dbPath = Environment.GetEnvironmentVariable("BETTER_ACCOUNTING_DB_PATH");
             if (string.IsNullOrEmpty(dbPath))
@@ -44,9 +50,12 @@ namespace BetterAccounting.UI.ViewModels
             SaveCommand = new RelayCommand(async () => await SaveAsync(), () => IsFormValid());
             CancelCommand = new RelayCommand(() => OnCancel?.Invoke());
             LoadAccountsCommand = new RelayCommand(async () => await LoadAccountsAsync());
-            
+            OpenPrintPreviewCommand = new RelayCommand(OpenPrintPreview);
+
             EntryTypes = new ObservableCollection<EntryType>(Enum.GetValues<EntryType>());
-            
+            VoucherTypes = new ObservableCollection<VoucherType>(Enum.GetValues<VoucherType>());
+            SelectedVoucherType = initialType;
+
             _ = LoadAccountsAsync();
         }
 
@@ -66,11 +75,30 @@ namespace BetterAccounting.UI.ViewModels
                 Type = EntryType,
                 Amount = Amount,
                 Description = Narration,
+                VoucherType = SelectedVoucherType,
+                Transporter = Transporter,
                 CreatedAt = DateTime.UtcNow
             };
 
             await _context.AddEntryAsync(entry);
             OnSaveSuccess?.Invoke();
+        }
+
+        private void OpenPrintPreview()
+        {
+            var entry = new LedgerEntry
+            {
+                Date = Date,
+                VoucherNo = VoucherNumber,
+                AccountName = SelectedAccount,
+                Type = EntryType,
+                Amount = Amount,
+                Description = Narration,
+                VoucherType = SelectedVoucherType,
+                Transporter = Transporter
+            };
+            var view = new Views.PrintPreviewWindow(entry);
+            view.Show();
         }
 
         private bool IsFormValid()
@@ -197,6 +225,26 @@ namespace BetterAccounting.UI.ViewModels
 
         private ObservableCollection<EntryType> _entryTypes;
 
+        public ObservableCollection<VoucherType> VoucherTypes
+        {
+            get => _voucherTypes;
+            set => SetProperty(ref _voucherTypes, value);
+        }
+
+        private ObservableCollection<VoucherType> _voucherTypes;
+
+        public VoucherType SelectedVoucherType
+        {
+            get => _selectedVoucherType;
+            set => SetProperty(ref _selectedVoucherType, value);
+        }
+
+        public string Transporter
+        {
+            get => _transporter;
+            set => SetProperty(ref _transporter, value);
+        }
+
         public bool IsDirty
         {
             get => _isDirty;
@@ -206,6 +254,7 @@ namespace BetterAccounting.UI.ViewModels
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
         public ICommand LoadAccountsCommand { get; }
+        public ICommand OpenPrintPreviewCommand { get; }
 
         public Action OnSaveSuccess;
         public Action OnCancel;

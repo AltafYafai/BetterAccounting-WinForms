@@ -37,6 +37,8 @@ namespace BetterAccounting.Core.Services.Data
                     Amount REAL NOT NULL,
                     Description TEXT,
                     ReferenceVoucherId TEXT,
+                    VoucherType TEXT NOT NULL DEFAULT 'Journal',
+                    Transporter TEXT NOT NULL DEFAULT '',
                     CreatedAt TEXT NOT NULL
                 );
 
@@ -45,6 +47,34 @@ namespace BetterAccounting.Core.Services.Data
                 CREATE INDEX IF NOT EXISTS idx_voucher ON LedgerEntries(VoucherNo);
             ";
             cmd.ExecuteNonQuery();
+            MigrateIfNeeded();
+        }
+
+        private void MigrateIfNeeded()
+        {
+            AddColumnIfMissing("VoucherType", "TEXT NOT NULL DEFAULT 'Journal'");
+            AddColumnIfMissing("Transporter", "TEXT NOT NULL DEFAULT ''");
+        }
+
+        private void AddColumnIfMissing(string columnName, string definition)
+        {
+            var existing = new HashSet<string>();
+            var pragma = _connection.CreateCommand();
+            pragma.CommandText = "PRAGMA table_info(LedgerEntries)";
+            using (var reader = pragma.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    existing.Add(reader.GetString(1));
+                }
+            }
+
+            if (existing.Contains(columnName))
+                return;
+
+            var alter = _connection.CreateCommand();
+            alter.CommandText = $"ALTER TABLE LedgerEntries ADD COLUMN {columnName} {definition}";
+            alter.ExecuteNonQuery();
         }
 
         public async Task<List<LedgerEntry>> GetAllEntriesAsync()
@@ -64,8 +94,8 @@ namespace BetterAccounting.Core.Services.Data
         {
             var cmd = _connection.CreateCommand();
             cmd.CommandText = @"
-                INSERT INTO LedgerEntries (Date, VoucherNo, AccountName, Type, Amount, Description, ReferenceVoucherId, CreatedAt)
-                VALUES ($date, $voucherNo, $accountName, $type, $amount, $description, $refId, $createdAt)";
+                INSERT INTO LedgerEntries (Date, VoucherNo, AccountName, Type, Amount, Description, ReferenceVoucherId, VoucherType, Transporter, CreatedAt)
+                VALUES ($date, $voucherNo, $accountName, $type, $amount, $description, $refId, $voucherType, $transporter, $createdAt)";
             cmd.Parameters.AddWithValue("$date", entry.Date.ToString("o"));
             cmd.Parameters.AddWithValue("$voucherNo", entry.VoucherNo);
             cmd.Parameters.AddWithValue("$accountName", entry.AccountName);
@@ -73,6 +103,8 @@ namespace BetterAccounting.Core.Services.Data
             cmd.Parameters.AddWithValue("$amount", entry.Amount);
             cmd.Parameters.AddWithValue("$description", entry.Description ?? "");
             cmd.Parameters.AddWithValue("$refId", entry.ReferenceVoucherId ?? "");
+            cmd.Parameters.AddWithValue("$voucherType", entry.VoucherType.ToString());
+            cmd.Parameters.AddWithValue("$transporter", entry.Transporter ?? "");
             cmd.Parameters.AddWithValue("$createdAt", entry.CreatedAt.ToString("o"));
             await cmd.ExecuteNonQueryAsync();
         }
@@ -129,6 +161,8 @@ namespace BetterAccounting.Core.Services.Data
             Amount = reader.GetDecimal(reader.GetOrdinal("Amount")),
             Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? null : reader.GetString(reader.GetOrdinal("Description")),
             ReferenceVoucherId = reader.IsDBNull(reader.GetOrdinal("ReferenceVoucherId")) ? null : reader.GetString(reader.GetOrdinal("ReferenceVoucherId")),
+            VoucherType = reader.IsDBNull(reader.GetOrdinal("VoucherType")) ? VoucherType.Journal : Enum.Parse<VoucherType>(reader.GetString(reader.GetOrdinal("VoucherType"))),
+            Transporter = reader.IsDBNull(reader.GetOrdinal("Transporter")) ? "" : reader.GetString(reader.GetOrdinal("Transporter")),
             CreatedAt = DateTime.Parse(reader.GetString(reader.GetOrdinal("CreatedAt")))
         };
 
