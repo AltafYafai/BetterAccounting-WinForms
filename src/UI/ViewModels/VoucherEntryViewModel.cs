@@ -111,13 +111,18 @@ namespace BetterAccounting.UI.ViewModels
 
         public bool HasErrors => _errors.Count > 0;
 
+        /// <inheritdoc />
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Nullable", "CS8768")]
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
+        /// <inheritdoc />
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Nullable", "CS8768")]
         System.Collections.IEnumerable? INotifyDataErrorInfo.GetErrors(string? propertyName)
         {
-            return string.IsNullOrEmpty(propertyName) 
-                ? _errors.SelectMany(e => e.Value).ToArray()
-                : _errors.GetValueOrDefault(propertyName, new List<string>());
+            if (string.IsNullOrEmpty(propertyName))
+                return _errors.SelectMany(e => e.Value).ToArray();
+            
+            return _errors.GetValueOrDefault(propertyName, new List<string>());
         }
 
         #endregion
