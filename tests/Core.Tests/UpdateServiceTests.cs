@@ -127,7 +127,7 @@ namespace BetterAccounting.Core.Tests
 
             try
             {
-                await Assert.ThrowsAsync<HttpRequestException>(() => service.DownloadAsync(info, target));
+                await Assert.ThrowsExceptionAsync<HttpRequestException>(() => service.DownloadAsync(info, target));
                 Assert.IsFalse(File.Exists(target));
             }
             finally
@@ -148,7 +148,7 @@ namespace BetterAccounting.Core.Tests
 
             try
             {
-                await Assert.ThrowsAsync<IOException>(() => service.DownloadAsync(info, target));
+                await Assert.ThrowsExceptionAsync<IOException>(() => service.DownloadAsync(info, target));
                 Assert.IsFalse(File.Exists(partial));
                 Assert.IsFalse(File.Exists(target));
             }
@@ -167,7 +167,7 @@ namespace BetterAccounting.Core.Tests
             var service = CreateService(new FakeHandler((HttpStatusCode.OK, "")));
             var info = new UpdateInfo { DownloadUrl = null };
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => service.DownloadAsync(info, "C:\\tmp\\x.exe"));
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => service.DownloadAsync(info, "C:\\tmp\\x.exe"));
         }
     }
 }
