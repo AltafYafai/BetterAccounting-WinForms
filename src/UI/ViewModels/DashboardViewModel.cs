@@ -45,6 +45,7 @@ namespace BetterAccounting.UI.ViewModels
             OpenAccountsCommand = new RelayCommand(OpenAccounts);
             OpenCompanyProfileCommand = new RelayCommand(OpenCompanyProfile);
             OpenGstSlabsCommand = new RelayCommand(OpenGstSlabs);
+            OpenAddCustomerCommand = new RelayCommand(OpenAddCustomer);
         }
 
         private async Task RefreshAsync()
@@ -114,6 +115,13 @@ namespace BetterAccounting.UI.ViewModels
             window.Show();
         }
 
+        private void OpenAddCustomer()
+        {
+            var view = new Views.AddCustomerView();
+            var window = new Window { Content = view, Title = "Add Customer", Width = 640, Height = 580 };
+            window.Show();
+        }
+
         public ObservableCollection<TrialBalanceRecord> TrialBalance
         {
             get => _trialBalance;
@@ -147,5 +155,6 @@ namespace BetterAccounting.UI.ViewModels
         public ICommand OpenAccountsCommand { get; }
         public ICommand OpenCompanyProfileCommand { get; }
         public ICommand OpenGstSlabsCommand { get; }
+        public ICommand OpenAddCustomerCommand { get; }
     }
 }
