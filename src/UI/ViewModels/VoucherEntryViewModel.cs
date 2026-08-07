@@ -1,5 +1,6 @@
 using BetterAccounting.Core.Data.Models;
 using BetterAccounting.Core.Services.Data;
+using BetterAccounting.Core.Services.Reports;
 using BetterAccounting.UI.Models;
 using System;
 using System.Collections.Generic;
@@ -110,9 +111,9 @@ namespace BetterAccounting.UI.ViewModels
 
         public bool HasErrors => _errors.Count > 0;
 
-        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+        public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
-        public IEnumerable GetErrors(string propertyName)
+        public IEnumerable? GetErrors(string? propertyName)
         {
             return string.IsNullOrEmpty(propertyName) ? _errors.SelectMany(e => e.Value) : _errors.GetValueOrDefault(propertyName, new List<string>());
         }
@@ -130,7 +131,7 @@ namespace BetterAccounting.UI.ViewModels
             }
         }
 
-        protected override void OnPropertyChanged(string propertyName = null)
+        protected override void OnPropertyChanged(string? propertyName = null)
         {
             base.OnPropertyChanged(propertyName);
             OnPropertyChangedHandler(propertyName);
