@@ -103,11 +103,7 @@ namespace BetterAccounting.Core.Tests
             {
                 DownloadUrl = "https://example.test/BetterAccounting.exe"
             };
-            var target = Path.Combine(Path.GetTempPath(), $"update_{Guid.NewGuid():N}.exe");
-
-            try
-            {
-                await service.DownloadAsync(info, target);
+            await service.DownloadAsync(info, target);
                 Assert.IsTrue(File.Exists(target));
             }
             finally
@@ -115,6 +111,59 @@ namespace BetterAccounting.Core.Tests
                 if (File.Exists(target))
                     File.Delete(target);
             }
+        }
+
+        [TestMethod]
+        public async Task DownloadAsync_ShouldNotLeavePartialFile_WhenDownloadFails()
+        {
+            var handler = new FakeHandler((HttpStatusCode.InternalServerError, ""));
+            var service = CreateService(handler);
+            var info = new UpdateInfo { DownloadUrl = "https://example.test/BetterAccounting.exe" };
+            var target = Path.Combine(Path.GetTempPath(), $"update_{Guid.NewGuid():N}.exe");
+
+            try
+            {
+                await Assert.ThrowsAsync<HttpRequestException>(() => service.DownloadAsync(info, target));
+                Assert.IsFalse(File.Exists(target));
+            }
+            finally
+            {
+                if (File.Exists(target))
+                    File.Delete(target);
+            }
+        }
+
+        [TestMethod]
+        public async Task DownloadAsync_ShouldRemovePartialFile_OnEmptyDownload()
+        {
+            var handler = new FakeHandler((HttpStatusCode.OK, ""));
+            var service = CreateService(handler);
+            var info = new UpdateInfo { DownloadUrl = "https://example.test/BetterAccounting.exe" };
+            var target = Path.Combine(Path.GetTempPath(), $"update_{Guid.NewGuid():N}.exe");
+            var partial = target + ".part";
+
+            try
+            {
+                await Assert.ThrowsAsync<IOException>(() => service.DownloadAsync(info, target));
+                Assert.IsFalse(File.Exists(partial));
+                Assert.IsFalse(File.Exists(target));
+            }
+            finally
+            {
+                if (File.Exists(target))
+                    File.Delete(target);
+                if (File.Exists(partial))
+                    File.Delete(partial);
+            }
+        }
+
+        [TestMethod]
+        public async Task DownloadAsync_WhenNoDownloadUrl_ShouldThrow()
+        {
+            var service = CreateService(new FakeHandler((HttpStatusCode.OK, "")));
+            var info = new UpdateInfo { DownloadUrl = null };
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.DownloadAsync(info, "C:\\tmp\\x.exe"));
         }
     }
 }

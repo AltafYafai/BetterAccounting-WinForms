@@ -80,9 +80,32 @@ namespace BetterAccounting.Core.Services
             if (!string.IsNullOrEmpty(directory))
                 Directory.CreateDirectory(directory);
 
-            await using var stream = await response.Content.ReadAsStreamAsync();
-            await using var file = File.Create(targetPath);
-            await stream.CopyToAsync(file);
+            var tempPath = targetPath + ".part";
+            if (File.Exists(tempPath))
+                File.Delete(tempPath);
+
+            try
+            {
+                await using (var responseStream = await response.Content.ReadAsStreamAsync())
+                await using (var file = File.Create(tempPath))
+                {
+                    await responseStream.CopyToAsync(file);
+                }
+
+                var size = new FileInfo(tempPath).Length;
+                if (size <= 0)
+                    throw new IOException("Downloaded file is empty.");
+
+                if (File.Exists(targetPath))
+                    File.Delete(targetPath);
+                File.Move(tempPath, targetPath);
+            }
+            finally
+            {
+                if (File.Exists(tempPath))
+                    File.Delete(tempPath);
+            }
+
             return targetPath;
         }
 
