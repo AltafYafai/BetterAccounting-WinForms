@@ -24,6 +24,7 @@
             <Button Content="Debit Note" Command="{Binding OpenDebitNoteCommand}" Padding="5,2" Margin="5,0"/>
             <Button Content="Credit Note" Command="{Binding OpenCreditNoteCommand}" Padding="5,2" Margin="5,0"/>
             <Button Content="Reports" Command="{Binding OpenReportsCommand}" Padding="5,2" Margin="5,0"/>
+            <Button Content="Catch-Up Payments" Command="{Binding OpenCatchUpCommand}" Padding="5,2" Margin="5,0"/>
             <Button Content="Accounts" Command="{Binding OpenAccountsCommand}" Padding="5,2" Margin="5,0"/>
             <Button Content="Add Customer" Command="{Binding OpenAddCustomerCommand}" Padding="5,2" Margin="5,0"/>
             <Button Content="Backup" Command="{Binding OpenBackupCommand}" Padding="5,2" Margin="5,0"/>

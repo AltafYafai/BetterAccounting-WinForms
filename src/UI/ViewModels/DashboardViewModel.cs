@@ -40,6 +40,7 @@ namespace BetterAccounting.UI.ViewModels
             OpenSyncSettingsCommand = new RelayCommand(OpenSyncSettings);
             ToggleThemeCommand = new RelayCommand(SwitchTheme);
             OpenReportsCommand = new RelayCommand(OpenReports);
+            OpenCatchUpCommand = new RelayCommand(OpenCatchUp);
             OpenBackupCommand = new RelayCommand(OpenBackupRestore);
             OpenAccountsCommand = new RelayCommand(OpenAccounts);
             OpenCompanyProfileCommand = new RelayCommand(OpenCompanyProfile);
@@ -147,6 +148,13 @@ namespace BetterAccounting.UI.ViewModels
         {
             var view = new Views.ReportViewerView();
             var window = new Window { Content = view, Title = "Reports", Width = 900, Height = 600 };
+            window.Show();
+        }
+
+        private void OpenCatchUp()
+        {
+            var view = new Views.CatchUpReportView();
+            var window = new Window { Content = view, Title = "Catch-Up Payments", Width = 850, Height = 600 };
             window.Show();
         }
 
@@ -284,6 +292,7 @@ namespace BetterAccounting.UI.ViewModels
         public ICommand OpenSyncSettingsCommand { get; }
         public ICommand ToggleThemeCommand { get; }
         public ICommand OpenReportsCommand { get; }
+        public ICommand OpenCatchUpCommand { get; }
         public ICommand OpenBackupCommand { get; }
         public ICommand OpenAccountsCommand { get; }
         public ICommand OpenCompanyProfileCommand { get; }
