@@ -20,7 +20,7 @@ namespace BetterAccounting.Core.Services.Data
                 CREATE TABLE IF NOT EXISTS Accounts (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     Name TEXT NOT NULL UNIQUE,
-                    Group TEXT NOT NULL,
+                    [Group] TEXT NOT NULL,
                     Description TEXT,
                     OpeningBalance REAL DEFAULT 0,
                     OpeningBalanceType TEXT DEFAULT 'Debit',
@@ -78,7 +78,7 @@ namespace BetterAccounting.Core.Services.Data
         {
             var cmd = _connection.CreateCommand();
             cmd.CommandText = @"
-                INSERT INTO Accounts (Name, Group, Description, OpeningBalance, OpeningBalanceType, IsActive, CreatedAt)
+                INSERT INTO Accounts (Name, [Group], Description, OpeningBalance, OpeningBalanceType, IsActive, CreatedAt)
                 VALUES ($name, $group, $desc, $openBal, $openType, $isActive, $createdAt)";
             AddParameters(cmd, account);
             await cmd.ExecuteNonQueryAsync();
@@ -90,7 +90,7 @@ namespace BetterAccounting.Core.Services.Data
             cmd.CommandText = @"
                 UPDATE Accounts SET 
                     Name = $name,
-                    Group = $group,
+                    [Group] = $group,
                     Description = $desc,
                     OpeningBalance = $openBal,
                     OpeningBalanceType = $openType,
