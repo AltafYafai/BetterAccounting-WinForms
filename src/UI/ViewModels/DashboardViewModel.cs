@@ -5,6 +5,7 @@ using BetterAccounting.UI.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace BetterAccounting.UI.ViewModels

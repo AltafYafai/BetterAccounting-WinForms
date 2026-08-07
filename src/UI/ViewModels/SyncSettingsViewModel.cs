@@ -91,14 +91,23 @@ namespace BetterAccounting.UI.ViewModels
 
         private void BrowseForFolder()
         {
-            var dialog = new System.Windows.Forms.FolderBrowserDialog
+            var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                Description = "Select Sync Folder",
-                SelectedPath = _syncFolderPath
+                Title = "Select Sync Folder Path",
+                CheckFileExists = false,
+                CheckPathExists = true,
+                FileName = "Folder Selection",
+                AddTextFileTypeFilter = false
             };
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            
+            if (dialog.ShowDialog() == true)
             {
-                SyncFolderPath = dialog.SelectedPath;
+                // OpenFileDialog returns a file path, we extract the directory
+                var dir = System.IO.Path.GetDirectoryName(dialog.FileName);
+                if (!string.IsNullOrEmpty(dir))
+                {
+                    SyncFolderPath = dir;
+                }
             }
         }
 

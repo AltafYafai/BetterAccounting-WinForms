@@ -102,7 +102,7 @@ namespace BetterAccounting.UI.ViewModels
                 _errors.Remove(propertyName);
             }
 
-            ErrorsChanged?.Invoke(this, new ErrorsChangedEventArgs(propertyName));
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
         }
 
         #region INotifyDataErrorInfo Implementation
