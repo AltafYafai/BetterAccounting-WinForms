@@ -37,7 +37,7 @@ namespace BetterAccounting.UI.Views
 
         private void EditAccount_Click(object sender, RoutedEventArgs e)
         {
-            if (AccountsGrid.SelectedItem is not Core.Data.Models.Account selected)
+            if (AccountsGrid.SelectedItem is not Core.Services.Data.Account selected)
                 return;
 
             var dialog = new AccountEditorView(new ViewModels.AccountEditorViewModel(_repository, selected));
@@ -47,7 +47,7 @@ namespace BetterAccounting.UI.Views
 
         private void DeleteAccount_Click(object sender, RoutedEventArgs e)
         {
-            if (AccountsGrid.SelectedItem is not Core.Data.Models.Account selected)
+            if (AccountsGrid.SelectedItem is not Core.Services.Data.Account selected)
                 return;
 
             var result = MessageBox.Show(
