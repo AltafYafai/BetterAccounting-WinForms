@@ -96,8 +96,7 @@ namespace BetterAccounting.UI.ViewModels
                 Title = "Select Sync Folder Path",
                 CheckFileExists = false,
                 CheckPathExists = true,
-                FileName = "Folder Selection",
-                AddTextFileTypeFilter = false
+                FileName = "Folder Selection"
             };
             
             if (dialog.ShowDialog() == true)
