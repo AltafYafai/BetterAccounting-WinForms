@@ -25,14 +25,17 @@ jobs:
     - name: Build
       run: dotnet build src/BetterAccounting.sln --no-restore --configuration Release
       
-    - name: Publish Windows App
+    - name: Publish Single-File Executable
       run: dotnet publish src/UI/UI.csproj --configuration Release --runtime win-x64 --output ./publish
       
-    - name: Upload Release Assets
+    - name: Inspect Publish Output
+      run: dir publish
+      
+    - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          ./publish/*
+          ./publish/*.exe
         name: BetterAccounting ${{ github.ref_name }}
         draft: false
         prerelease: false

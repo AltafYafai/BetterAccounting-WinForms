@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: windows-latest
@@ -27,11 +30,11 @@ jobs:
     - name: Run Tests
       run: dotnet test src/BetterAccounting.sln --no-build --verbosity normal
       
-    - name: Publish
+    - name: Publish Single-File Executable
       run: dotnet publish src/UI/UI.csproj --configuration Release --runtime win-x64 --output ./publish
       
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: betteraccounting-windows
-        path: ./publish/
+        name: betteraccounting-windows-single-file
+        path: ./publish/BetterAccounting.exe
