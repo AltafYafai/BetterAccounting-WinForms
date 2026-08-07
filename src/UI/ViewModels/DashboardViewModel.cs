@@ -43,6 +43,8 @@ namespace BetterAccounting.UI.ViewModels
             OpenReportsCommand = new RelayCommand(OpenReports);
             OpenBackupCommand = new RelayCommand(OpenBackupRestore);
             OpenAccountsCommand = new RelayCommand(OpenAccounts);
+            OpenCompanyProfileCommand = new RelayCommand(OpenCompanyProfile);
+            OpenGstSlabsCommand = new RelayCommand(OpenGstSlabs);
         }
 
         private async Task RefreshAsync()
@@ -98,6 +100,20 @@ namespace BetterAccounting.UI.ViewModels
             window.Show();
         }
 
+        private void OpenCompanyProfile()
+        {
+            var view = new Views.CompanySettingsView();
+            var window = new Window { Content = view, Title = "Company Profile", Width = 640, Height = 620 };
+            window.Show();
+        }
+
+        private void OpenGstSlabs()
+        {
+            var view = new Views.GstSlabView();
+            var window = new Window { Content = view, Title = "GST Slabs", Width = 700, Height = 520 };
+            window.Show();
+        }
+
         public ObservableCollection<TrialBalanceRecord> TrialBalance
         {
             get => _trialBalance;
@@ -129,5 +145,7 @@ namespace BetterAccounting.UI.ViewModels
         public ICommand OpenReportsCommand { get; }
         public ICommand OpenBackupCommand { get; }
         public ICommand OpenAccountsCommand { get; }
+        public ICommand OpenCompanyProfileCommand { get; }
+        public ICommand OpenGstSlabsCommand { get; }
     }
 }

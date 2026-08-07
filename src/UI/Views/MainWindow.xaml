@@ -16,6 +16,8 @@
             <Button Content="Reports" Command="{Binding OpenReportsCommand}" Padding="5,2" Margin="5,0"/>
             <Button Content="Accounts" Command="{Binding OpenAccountsCommand}" Padding="5,2" Margin="5,0"/>
             <Button Content="Backup" Command="{Binding OpenBackupCommand}" Padding="5,2" Margin="5,0"/>
+            <Button Content="Company Profile" Command="{Binding OpenCompanyProfileCommand}" Padding="5,2" Margin="5,0"/>
+            <Button Content="GST Slabs" Command="{Binding OpenGstSlabsCommand}" Padding="5,2" Margin="5,0"/>
             <Button Content="Sync Settings" Command="{Binding OpenSyncSettingsCommand}" Padding="5,2" Margin="5,0"/>
             <Button Content="Toggle Theme" Command="{Binding ToggleThemeCommand}" Padding="5,2" Margin="5,0"/>
         </ToolBar>
