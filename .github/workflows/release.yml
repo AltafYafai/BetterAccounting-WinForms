@@ -23,25 +23,14 @@ jobs:
       run: dotnet build src/BetterAccounting.sln --no-restore --configuration Release
       
     - name: Publish Windows App
-      run: dotnet publish src/BetterAccounting.UI/BetterAccounting.UI.csproj --configuration Release --runtime win-x64 --output ./publish
+      run: dotnet publish src/UI/UI.csproj --configuration Release --runtime win-x64 --output ./publish
       
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload Release Assets
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        files: |
+          ./publish/*
+        name: BetterAccounting ${{ github.ref_name }}
         draft: false
         prerelease: false
-        
-    - name: Upload Release Assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./publish/BetterAccounting.exe
-        asset_name: BetterAccounting-Setup.exe
-        asset_content_type: application/x-msdownload
+        generate_release_notes: true
