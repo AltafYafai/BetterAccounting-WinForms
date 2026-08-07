@@ -9,14 +9,16 @@ namespace BetterAccounting.UI.Views
     public partial class ChartOfAccountsView : Window
     {
         private readonly AccountRepository _repository;
+        private readonly Microsoft.Data.Sqlite.SqliteConnection _connection;
 
         public ChartOfAccountsView()
         {
             InitializeComponent();
-            var dbPath = System.IO.Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "BetterAccounting", "data.db");
-            _repository = new AccountRepository(new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dbPath}"));
+            var dbPath = BetterAccounting.Core.Services.Data.AppPaths.CurrentDbPath();
+            _connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dbPath}");
+            _connection.Open();
+            _repository = new AccountRepository(_connection);
+            Closed += (_, _) => _connection.Dispose();
             _ = LoadAccountsAsync();
         }
 

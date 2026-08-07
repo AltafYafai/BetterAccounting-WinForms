@@ -8,6 +8,7 @@ namespace BetterAccounting.UI.ViewModels
 {
     public class CompanySettingsViewModel : ViewModelBase
     {
+        private readonly SQLiteContext _context;
         private readonly CompanyProfileRepository _repository;
 
         private string _companyName = string.Empty;
@@ -23,19 +24,15 @@ namespace BetterAccounting.UI.ViewModels
         public CompanySettingsViewModel()
         {
             var dbPath = GetDatabasePath();
-            _repository = new CompanyProfileRepository(new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dbPath}"));
+            _context = new SQLiteContext(dbPath);
+            _repository = new CompanyProfileRepository(_context.Connection);
             SaveCommand = new RelayCommand(async () => await SaveAsync());
             _ = LoadAsync();
         }
 
         private static string GetDatabasePath()
         {
-            var dbPath = System.Environment.GetEnvironmentVariable("BETTER_ACCOUNTING_DB_PATH");
-            if (!string.IsNullOrEmpty(dbPath))
-                return dbPath;
-            return System.IO.Path.Combine(
-                System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
-                "BetterAccounting", "data.db");
+            return BetterAccounting.Core.Services.Data.AppPaths.CurrentDbPath();
         }
 
         private async Task LoadAsync()

@@ -112,7 +112,7 @@ namespace BetterAccounting.UI.ViewModels
             try
             {
                 var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                var dbPath = Path.Combine(appData, "BetterAccounting", "data.db");
+                var dbPath = BetterAccounting.Core.Services.Data.AppPaths.CurrentDbPath();
                 if (!File.Exists(dbPath))
                     return null;
 

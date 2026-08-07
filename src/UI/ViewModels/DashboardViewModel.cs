@@ -4,6 +4,7 @@ using BetterAccounting.Core.Services.Reports;
 using BetterAccounting.UI.Models;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -12,29 +13,24 @@ namespace BetterAccounting.UI.ViewModels
 {
     public class DashboardViewModel : ViewModelBase
     {
-        private readonly IDataContext _context;
-        private readonly TrialBalanceService _trialBalanceService;
-        private readonly FinancialStatementService _financialStatementService;
-        private readonly AccountRepository _accountRepository;
+        private readonly CompanyManager _companyManager = CompanyManager.Instance;
+
+        private IDataContext _context;
+        private TrialBalanceService _trialBalanceService;
+        private FinancialStatementService _financialStatementService;
+        private AccountRepository _accountRepository;
 
         private ObservableCollection<TrialBalanceRecord> _trialBalance;
+        private ObservableCollection<CompanyItem> _companies = new();
+        private CompanyItem? _selectedCompany;
         private decimal _totalAssets;
         private decimal _totalLiabilities;
         private decimal _totalEquity;
 
         public DashboardViewModel()
         {
-            var dbPath = Environment.GetEnvironmentVariable("BETTER_ACCOUNTING_DB_PATH");
-            if (string.IsNullOrEmpty(dbPath))
-            {
-                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                dbPath = System.IO.Path.Combine(appData, "BetterAccounting", "data.db");
-            }
-
-            _context = new SQLiteContext(dbPath);
-            _accountRepository = new AccountRepository(((SQLiteContext)_context).Connection);
-            _trialBalanceService = new TrialBalanceService(_context);
-            _financialStatementService = new FinancialStatementService(_context);
+            InitializeContext();
+            LoadCompanies();
 
             LoadDataCommand = new RelayCommand(async () => await RefreshAsync());
             AddEntryCommand = new RelayCommand(OpenVoucherEntry);
@@ -51,6 +47,63 @@ namespace BetterAccounting.UI.ViewModels
             OpenAddCustomerCommand = new RelayCommand(OpenAddCustomer);
             OpenAboutCommand = new RelayCommand(OpenAbout);
             OpenPrintFormatsCommand = new RelayCommand(OpenPrintFormats);
+            OpenCompanyManagerCommand = new RelayCommand(async () => await OpenCompanyManagerAsync());
+
+            _ = RefreshAsync();
+        }
+
+        private void InitializeContext()
+        {
+            (_context as IDisposable)?.Dispose();
+
+            var dbPath = AppPaths.CurrentDbPath();
+            _context = new SQLiteContext(dbPath);
+            _accountRepository = new AccountRepository(((SQLiteContext)_context).Connection);
+            _trialBalanceService = new TrialBalanceService(_context);
+            _financialStatementService = new FinancialStatementService(_context);
+        }
+
+        private void LoadCompanies()
+        {
+            var activeId = _companyManager.ActiveId;
+            Companies = new ObservableCollection<CompanyItem>(
+                _companyManager.Companies.Select(c => new CompanyItem
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    DbPath = c.DbFilePath,
+                    IsActive = c.Id == activeId
+                }));
+
+            _isSwitching = true;
+            SelectedCompany = Companies.FirstOrDefault(i => i.Id == activeId) ?? Companies.FirstOrDefault();
+            _isSwitching = false;
+        }
+
+        private async Task SwitchCompanyAsync(CompanyItem target)
+        {
+            if (target == null || _isSwitching)
+                return;
+
+            if (_companyManager.ActiveId == target.Id)
+                return;
+
+            _isSwitching = true;
+            try
+            {
+                _companyManager.Switch(target.Id);
+                IsBusy = true;
+                await Task.Yield();
+                InitializeContext();
+                LoadCompanies();
+                await RefreshAsync();
+                StatusMessage = $"Active company: {target.Name}";
+            }
+            finally
+            {
+                IsBusy = false;
+                _isSwitching = false;
+            }
         }
 
         private async Task RefreshAsync()
@@ -144,10 +197,65 @@ namespace BetterAccounting.UI.ViewModels
             window.Show();
         }
 
+        private async Task OpenCompanyManagerAsync()
+        {
+            var window = new Views.CompanyManagerView();
+            window.ShowDialog();
+
+            // The manager may have added/switched/removed companies while it was open,
+            // so resync the dashboard's context and totals with the (possibly new) active company.
+            IsBusy = true;
+            try
+            {
+                await Task.Yield();
+                InitializeContext();
+                LoadCompanies();
+                await RefreshAsync();
+                StatusMessage = $"Active company: {_companyManager.Active.Name}";
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
         public ObservableCollection<TrialBalanceRecord> TrialBalance
         {
             get => _trialBalance;
             set => SetProperty(ref _trialBalance, value);
+        }
+
+        public ObservableCollection<CompanyItem> Companies
+        {
+            get => _companies;
+            set => SetProperty(ref _companies, value);
+        }
+
+        public CompanyItem? SelectedCompany
+        {
+            get => _selectedCompany;
+            set
+            {
+                if (SetProperty(ref _selectedCompany, value) && value != null)
+                    _ = SwitchCompanyAsync(value);
+            }
+        }
+
+        public string ActiveCompanyName
+        {
+            get => _companyManager.Active.Name;
+        }
+
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set => SetProperty(ref _isBusy, value);
+        }
+
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set => SetProperty(ref _statusMessage, value);
         }
 
         public decimal TotalAssets
@@ -183,5 +291,10 @@ namespace BetterAccounting.UI.ViewModels
         public ICommand OpenAddCustomerCommand { get; }
         public ICommand OpenAboutCommand { get; }
         public ICommand OpenPrintFormatsCommand { get; }
+        public ICommand OpenCompanyManagerCommand { get; }
+
+        private bool _isSwitching;
+        private bool _isBusy;
+        private string _statusMessage = "";
     }
 }

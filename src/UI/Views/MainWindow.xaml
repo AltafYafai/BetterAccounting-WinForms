@@ -11,6 +11,13 @@
         
         <!-- Toolbar -->
         <ToolBar Grid.Row="0">
+            <TextBlock Text="Company:" VerticalAlignment="Center" Margin="0,0,4,0"/>
+            <ComboBox ItemsSource="{Binding Companies}" SelectedItem="{Binding SelectedCompany, Mode=TwoWay}"
+                      DisplayMemberPath="DisplayName" MinWidth="160" Margin="0,0,6,0"/>
+            <Button Content="Companies..." Command="{Binding OpenCompanyManagerCommand}" Padding="5,2"
+                    Margin="0,0,10,0" ToolTip="Add, switch and manage companies/clients"/>
+            <Separator/>
+
             <Button Content="Refresh" Command="{Binding LoadDataCommand}" Padding="5,2"/>
             <Button Content="Add Entry" Command="{Binding AddEntryCommand}" Padding="5,2"/>
             <Button Content="Bank Entry" Command="{Binding OpenBankEntryCommand}" Padding="5,2" Margin="5,0"/>

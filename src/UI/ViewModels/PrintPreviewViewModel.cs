@@ -25,13 +25,7 @@ namespace BetterAccounting.UI.ViewModels
 
         private static CompanyProfile? LoadCompanyProfile()
         {
-            var dbPath = System.Environment.GetEnvironmentVariable("BETTER_ACCOUNTING_DB_PATH");
-            if (string.IsNullOrEmpty(dbPath))
-            {
-                dbPath = System.IO.Path.Combine(
-                    System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
-                    "BetterAccounting", "data.db");
-            }
+            var dbPath = BetterAccounting.Core.Services.Data.AppPaths.CurrentDbPath();
 
             try
             {
@@ -47,13 +41,7 @@ namespace BetterAccounting.UI.ViewModels
 
         private static PrintTemplate? LoadTemplate()
         {
-            var dbPath = System.Environment.GetEnvironmentVariable("BETTER_ACCOUNTING_DB_PATH");
-            if (string.IsNullOrEmpty(dbPath))
-            {
-                dbPath = System.IO.Path.Combine(
-                    System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
-                    "BetterAccounting", "data.db");
-            }
+            var dbPath = BetterAccounting.Core.Services.Data.AppPaths.CurrentDbPath();
 
             try
             {

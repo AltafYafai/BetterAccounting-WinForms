@@ -36,12 +36,7 @@ namespace BetterAccounting.UI.ViewModels
 
         public VoucherEntryViewModel(VoucherType initialType)
         {
-            var dbPath = Environment.GetEnvironmentVariable("BETTER_ACCOUNTING_DB_PATH");
-            if (string.IsNullOrEmpty(dbPath))
-            {
-                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                dbPath = System.IO.Path.Combine(appData, "BetterAccounting", "data.db");
-            }
+            var dbPath = BetterAccounting.Core.Services.Data.AppPaths.CurrentDbPath();
 
             _context = new SQLiteContext(dbPath);
             _accountRepository = new AccountRepository(((SQLiteContext)_context).Connection);

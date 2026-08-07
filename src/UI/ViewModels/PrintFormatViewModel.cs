@@ -13,6 +13,7 @@ namespace BetterAccounting.UI.ViewModels
 {
     public class PrintFormatViewModel : ViewModelBase
     {
+        private readonly SQLiteContext _context;
         private readonly PrintTemplateService _service;
         private readonly CompanyProfileRepository _companyRepository;
         private CompanyProfile? _company;
@@ -29,8 +30,8 @@ namespace BetterAccounting.UI.ViewModels
 
         public PrintFormatViewModel()
         {
-            var dbPath = GetDatabasePath();
-            var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dbPath}");
+            _context = new SQLiteContext(GetDatabasePath());
+            var connection = _context.Connection;
             _service = new PrintTemplateService(new PrintTemplateRepository(connection));
             _companyRepository = new CompanyProfileRepository(connection);
 
@@ -47,12 +48,7 @@ namespace BetterAccounting.UI.ViewModels
 
         private static string GetDatabasePath()
         {
-            var dbPath = System.Environment.GetEnvironmentVariable("BETTER_ACCOUNTING_DB_PATH");
-            if (!string.IsNullOrEmpty(dbPath))
-                return dbPath;
-            return System.IO.Path.Combine(
-                System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
-                "BetterAccounting", "data.db");
+            return BetterAccounting.Core.Services.Data.AppPaths.CurrentDbPath();
         }
 
         private async Task LoadAsync()

@@ -9,6 +9,7 @@ namespace BetterAccounting.UI.ViewModels
 {
     public class GstSlabViewModel : ViewModelBase
     {
+        private readonly SQLiteContext _context;
         private readonly GstSlabRepository _repository;
 
         private ObservableCollection<GstSlab> _slabs = new();
@@ -18,8 +19,8 @@ namespace BetterAccounting.UI.ViewModels
 
         public GstSlabViewModel()
         {
-            var dbPath = GetDatabasePath();
-            _repository = new GstSlabRepository(new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dbPath}"));
+            _context = new SQLiteContext(GetDatabasePath());
+            _repository = new GstSlabRepository(_context.Connection);
             AddCommand = new RelayCommand(async () => await AddAsync());
             DeleteCommand = new RelayCommand(async () => await DeleteAsync(), () => SelectedSlab is not null);
             _ = LoadAsync();
@@ -27,12 +28,7 @@ namespace BetterAccounting.UI.ViewModels
 
         private static string GetDatabasePath()
         {
-            var dbPath = System.Environment.GetEnvironmentVariable("BETTER_ACCOUNTING_DB_PATH");
-            if (!string.IsNullOrEmpty(dbPath))
-                return dbPath;
-            return System.IO.Path.Combine(
-                System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
-                "BetterAccounting", "data.db");
+            return BetterAccounting.Core.Services.Data.AppPaths.CurrentDbPath();
         }
 
         private async Task LoadAsync()

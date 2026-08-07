@@ -9,6 +9,7 @@ namespace BetterAccounting.UI.ViewModels
 {
     public class AddCustomerViewModel : ViewModelBase
     {
+        private readonly SQLiteContext _context;
         private readonly CustomerRepository _repository;
         private readonly GstinLookupService _lookupService;
 
@@ -25,8 +26,8 @@ namespace BetterAccounting.UI.ViewModels
 
         public AddCustomerViewModel()
         {
-            var dbPath = GetDatabasePath();
-            _repository = new CustomerRepository(new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dbPath}"));
+            _context = new SQLiteContext(GetDatabasePath());
+            _repository = new CustomerRepository(_context.Connection);
             _lookupService = new GstinLookupService(new HttpClient());
 
             FetchCommand = new RelayCommand(async () => await FetchFromGstinAsync(), () => !IsBusy);
@@ -44,12 +45,7 @@ namespace BetterAccounting.UI.ViewModels
 
         private static string GetDatabasePath()
         {
-            var dbPath = System.Environment.GetEnvironmentVariable("BETTER_ACCOUNTING_DB_PATH");
-            if (!string.IsNullOrEmpty(dbPath))
-                return dbPath;
-            return System.IO.Path.Combine(
-                System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
-                "BetterAccounting", "data.db");
+            return BetterAccounting.Core.Services.Data.AppPaths.CurrentDbPath();
         }
 
         private async Task FetchFromGstinAsync()

@@ -72,8 +72,7 @@ namespace BetterAccounting.Core.Services.Data
 
         private static string GetDefaultDbPath()
         {
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            return Path.Combine(appData, "BetterAccounting", "data.db");
+            return AppPaths.CurrentDbPath();
         }
 
         private static string GetDefaultBackupDirectory()
