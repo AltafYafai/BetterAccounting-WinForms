@@ -132,6 +132,13 @@ namespace BetterAccounting.Core.Services.Data
             CreatedAt = DateTime.Parse(reader.GetString(reader.GetOrdinal("CreatedAt")))
         };
 
-        public void Dispose() => _connection?.Dispose();
+        public void Dispose()
+        {
+            if (_connection != null)
+            {
+                SqliteConnection.ClearPool(_connection);
+                _connection.Dispose();
+            }
+        }
     }
 }
