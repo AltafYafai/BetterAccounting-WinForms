@@ -1,0 +1,56 @@
+<Window x:Class="BetterAccounting.UI.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="BetterAccounting - Dashboard" Height="600" Width="900">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Toolbar -->
+        <ToolBar Grid.Row="0">
+            <Button Content="Refresh" Command="{Binding LoadDataCommand}" Padding="5,2"/>
+            <Button Content="Add Entry" Command="{Binding AddEntryCommand}" Padding="5,2"/>
+            <Button Content="Reports" Command="{Binding OpenReportsCommand}" Padding="5,2" Margin="5,0"/>
+            <Button Content="Accounts" Command="{Binding OpenAccountsCommand}" Padding="5,2" Margin="5,0"/>
+            <Button Content="Backup" Command="{Binding OpenBackupCommand}" Padding="5,2" Margin="5,0"/>
+            <Button Content="Sync Settings" Command="{Binding OpenSyncSettingsCommand}" Padding="5,2" Margin="5,0"/>
+            <Button Content="Toggle Theme" Command="{Binding ToggleThemeCommand}" Padding="5,2" Margin="5,0"/>
+        </ToolBar>
+
+        <!-- Financial Summary -->
+        <Expander Grid.Row="1" Header="Financial Summary" IsExpanded="True" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <TextBlock Text="Total Assets" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalAssets, StringFormat=C}" Foreground="Green" FontSize="16"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                    <TextBlock Text="Total Liabilities" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalLiabilities, StringFormat=C}" Foreground="OrangeRed" FontSize="16"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                    <TextBlock Text="Equity" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding TotalEquity, StringFormat=C}" Foreground="Blue" FontSize="16"/>
+                </StackPanel>
+            </Grid>
+        </Expander>
+
+        <!-- Trial Balance Grid -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding TrialBalance}" 
+                  AutoGenerateColumns="False" IsReadOnly="True" Margin="0,0,0,10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Account" Binding="{Binding AccountName}" Width="*"/>
+                <DataGridTextColumn Header="Debits" Binding="{Binding TotalDebits, StringFormat=C}" Width="120"/>
+                <DataGridTextColumn Header="Credits" Binding="{Binding TotalCredits, StringFormat=C}" Width="120"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

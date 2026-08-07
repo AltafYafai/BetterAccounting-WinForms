@@ -1,0 +1,49 @@
+# Build directories
+bin/
+obj/
+
+# User-specific files
+*.user
+*.userosscache
+*.sln.docstates
+
+# NuGet Packages
+*.nuget/packages/
+*.nuget/packages.lock.json
+
+# Visual Studio
+*.vs/
+*.vscode/
+
+# Build output
+*.exe
+*.exe.config
+*.dll
+*.pdb
+*.cache
+
+# Data files (local only)
+*.db
+*.sqlite3
+*.bak
+*.tmp
+
+# Environment
+.env
+.env.*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.IdeArchive
+Icon?
+.epub
+.Preview.crtt
+._
+```
+
+# BetterAccounting - Windows Accounting Software
+# A modern alternative to legacy accounting apps like Miracle Accounting
+```
