@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+using BetterAccounting.Core.Data.Models;
 
 namespace BetterAccounting.Core.Services.Data
 {
