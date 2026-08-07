@@ -3,6 +3,7 @@ using BetterAccounting.Core.Services.Data;
 using BetterAccounting.Core.Services.Reports;
 using BetterAccounting.UI.Models;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace BetterAccounting.UI.ViewModels
         private readonly FinancialStatementService _financialStatementService;
         private readonly ProfitAndLossService _profitAndLossService;
         private readonly LedgerReportService _ledgerReportService;
+        private readonly PrintTemplateService _printTemplateService;
+        private readonly CompanyProfileRepository _companyRepository;
 
         private int _selectedReportIndex = 0;
         private DateTime _fromDate = DateTime.Today.AddMonths(-1);
@@ -50,10 +53,13 @@ namespace BetterAccounting.UI.ViewModels
             _financialStatementService = new FinancialStatementService(_context);
             _profitAndLossService = new ProfitAndLossService(_context, _accountRepository);
             _ledgerReportService = new LedgerReportService(_context, _accountRepository);
+            _printTemplateService = new PrintTemplateService(new PrintTemplateRepository(((SQLiteContext)_context).Connection));
+            _companyRepository = new CompanyProfileRepository(((SQLiteContext)_context).Connection);
 
             GenerateReportCommand = new RelayCommand(async () => await GenerateReportAsync());
             ExportCommand = new RelayCommand(async () => await ExportAsync(), () => ReportData != null);
             LoadAccountsCommand = new RelayCommand(async () => await LoadAccountsAsync());
+            PrintCommand = new RelayCommand(async () => await PrintAsync(), () => ReportData != null);
 
             Reports = new ObservableCollection<string>
             {
@@ -122,6 +128,94 @@ namespace BetterAccounting.UI.ViewModels
             }
         }
 
+        private async Task PrintAsync()
+        {
+            var reportTitle = SelectedReportIndex < Reports.Count ? Reports[SelectedReportIndex] : "Report";
+            var company = await LoadCompanyAsync();
+            var template = await _printTemplateService.GetDefaultAsync(DocumentType.Report);
+            var content = template?.Content ?? PrintTemplateService.GetDefaultContent(DocumentType.Report);
+
+            var fields = new Dictionary<string, string>
+            {
+                { "CompanyName", company?.CompanyName ?? "" },
+                { "Gstin", company?.Gstin ?? "" },
+                { "Address", company?.Address ?? "" },
+                { "City", company?.City ?? "" },
+                { "State", company?.State ?? "" },
+                { "PinCode", company?.PinCode ?? "" },
+                { "Phone", company?.Phone ?? "" },
+                { "Email", company?.Email ?? "" },
+                { "ReportTitle", reportTitle },
+                { "FromDate", FromDate.ToShortDateString() },
+                { "ToDate", ToDate.ToShortDateString() },
+                { "CreatedDate", DateTime.Now.ToString("g") }
+            };
+
+            var lines = PrintTemplateService.Render(content, fields).ToList();
+            lines.AddRange(await BuildReportRowsAsync((ReportType)SelectedReportIndex));
+
+            var document = TemplateDocumentBuilder.Build(lines);
+            var preview = new Views.DocumentPreviewWindow(document, $"Print - {reportTitle}");
+            preview.Show();
+        }
+
+        private async Task<CompanyProfile?> LoadCompanyAsync()
+        {
+            try
+            {
+                return await _companyRepository.GetAsync();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private async Task<IReadOnlyList<string>> BuildReportRowsAsync(ReportType type)
+        {
+            var rows = new List<string>();
+            switch (type)
+            {
+                case ReportType.TrialBalance:
+                    var records = await _trialBalanceService.GenerateTrialBalanceAsync(FromDate, ToDate);
+                    rows.Add("@B Account          Debits          Credits");
+                    foreach (var r in records)
+                        rows.Add($"{r.AccountName,-20}{r.TotalDebits:C14}{r.TotalCredits:C14}");
+                    break;
+                case ReportType.BalanceSheet:
+                    var (assets, liabilities, equity) = await _financialStatementService.GetBalanceSheetTotalsAsync(ToDate);
+                    rows.Add($"Assets       : {assets:C}");
+                    rows.Add($"Liabilities  : {liabilities:C}");
+                    rows.Add($"Equity       : {equity:C}");
+                    break;
+                case ReportType.ProfitAndLoss:
+                    var pnl = await _profitAndLossService.GenerateAsync(FromDate, ToDate);
+                    rows.Add("@B  Income");
+                    foreach (var i in pnl.Incomes)
+                        rows.Add($"{i.AccountName,-20}{i.Amount:C}");
+                    rows.Add($"Total Income     {pnl.TotalIncome:C}");
+                    rows.Add("@B  Expenses");
+                    foreach (var e in pnl.Expenses)
+                        rows.Add($"{e.AccountName,-20}{e.Amount:C}");
+                    rows.Add($"Total Expenses   {pnl.TotalExpense:C}");
+                    rows.Add($"Net Profit       {pnl.NetProfit:C}");
+                    break;
+                case ReportType.Ledger:
+                    if (!string.IsNullOrEmpty(SelectedAccountName))
+                    {
+                        var ledger = await _ledgerReportService.GenerateForAccountAsync(SelectedAccountName, FromDate, ToDate);
+                        rows.Add($"Account: {ledger.AccountName}");
+                        rows.Add($"Opening Balance: {ledger.OpeningBalance:C}");
+                        rows.Add("@B Date        Voucher      Description        Debit      Credit     Balance");
+                        foreach (var e in ledger.Entries)
+                            rows.Add($"{e.Date.ToShortDateString(),-12}{e.VoucherNo,-12}{e.Description,-16}{e.Debit:C9}{e.Credit:C9}{e.RunningBalance:C9}");
+                        rows.Add($"Closing Balance: {ledger.ClosingBalance:C}");
+                    }
+                    break;
+            }
+            return rows;
+        }
+
         public ObservableCollection<string> Reports
         {
             get => _reports;
@@ -175,5 +269,6 @@ namespace BetterAccounting.UI.ViewModels
         public ICommand GenerateReportCommand { get; }
         public ICommand ExportCommand { get; }
         public ICommand LoadAccountsCommand { get; }
+        public ICommand PrintCommand { get; }
     }
 }

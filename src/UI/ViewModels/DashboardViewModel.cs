@@ -50,6 +50,7 @@ namespace BetterAccounting.UI.ViewModels
             OpenGstSlabsCommand = new RelayCommand(OpenGstSlabs);
             OpenAddCustomerCommand = new RelayCommand(OpenAddCustomer);
             OpenAboutCommand = new RelayCommand(OpenAbout);
+            OpenPrintFormatsCommand = new RelayCommand(OpenPrintFormats);
         }
 
         private async Task RefreshAsync()
@@ -137,6 +138,12 @@ namespace BetterAccounting.UI.ViewModels
             window.ShowDialog();
         }
 
+        private void OpenPrintFormats()
+        {
+            var window = new Views.PrintFormatView();
+            window.Show();
+        }
+
         public ObservableCollection<TrialBalanceRecord> TrialBalance
         {
             get => _trialBalance;
@@ -175,5 +182,6 @@ namespace BetterAccounting.UI.ViewModels
         public ICommand OpenGstSlabsCommand { get; }
         public ICommand OpenAddCustomerCommand { get; }
         public ICommand OpenAboutCommand { get; }
+        public ICommand OpenPrintFormatsCommand { get; }
     }
 }

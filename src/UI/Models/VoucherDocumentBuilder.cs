@@ -1,5 +1,8 @@
 using BetterAccounting.Core.Data.Models;
 using BetterAccounting.Core.Services.Reports;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Documents;
 
@@ -7,7 +10,21 @@ namespace BetterAccounting.UI.Models
 {
     public static class VoucherDocumentBuilder
     {
-        public static FlowDocument Build(LedgerEntry entry, CompanyProfile? company, string copyLabel)
+        public static FlowDocument Build(LedgerEntry entry, CompanyProfile? company, string copyLabel,
+            PrintTemplate? template = null)
+        {
+            if (template != null && !string.IsNullOrWhiteSpace(template.Content))
+            {
+                var fields = BuildFields(entry, company);
+                var lines = PrintTemplateService.Render(template.Content, fields).ToList();
+                lines.Insert(0, "@C " + copyLabel);
+                return TemplateDocumentBuilder.Build(lines);
+            }
+
+            return BuildDefault(entry, company, copyLabel);
+        }
+
+        public static FlowDocument BuildDefault(LedgerEntry entry, CompanyProfile? company, string copyLabel)
         {
             var doc = new FlowDocument
             {
@@ -57,6 +74,30 @@ namespace BetterAccounting.UI.Models
             }
 
             return doc;
+        }
+
+        private static Dictionary<string, string> BuildFields(LedgerEntry entry, CompanyProfile? company)
+        {
+            return new Dictionary<string, string>
+            {
+                { "CompanyName", company?.CompanyName ?? "" },
+                { "Gstin", company?.Gstin ?? "" },
+                { "Address", company?.Address ?? "" },
+                { "City", company?.City ?? "" },
+                { "State", company?.State ?? "" },
+                { "PinCode", company?.PinCode ?? "" },
+                { "Phone", company?.Phone ?? "" },
+                { "Email", company?.Email ?? "" },
+                { "VoucherType", entry.VoucherType.ToString() },
+                { "VoucherNo", entry.VoucherNo },
+                { "Date", entry.Date.ToShortDateString() },
+                { "Account", entry.AccountName },
+                { "DebitCredit", entry.Type.ToString() },
+                { "Amount", entry.Amount.ToString("C") },
+                { "Narration", entry.Description ?? "" },
+                { "Transporter", entry.Transporter ?? "" },
+                { "CreatedDate", DateTime.Now.ToString("g") }
+            };
         }
     }
 }

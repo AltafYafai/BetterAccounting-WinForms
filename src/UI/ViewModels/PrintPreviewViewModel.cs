@@ -11,13 +11,15 @@ namespace BetterAccounting.UI.ViewModels
     {
         private readonly LedgerEntry _entry;
         private readonly CompanyProfile? _company;
+        private readonly PrintTemplate? _template;
         private string _selectedCopy = "Original";
 
         public PrintPreviewViewModel(LedgerEntry entry)
         {
             _entry = entry;
             _company = LoadCompanyProfile();
-            Document = VoucherDocumentBuilder.Build(entry, _company, "ORIGINAL");
+            _template = LoadTemplate();
+            Document = VoucherDocumentBuilder.Build(entry, _company, "ORIGINAL", _template);
             PrintCommand = new RelayCommand(Print);
         }
 
@@ -43,6 +45,28 @@ namespace BetterAccounting.UI.ViewModels
             }
         }
 
+        private static PrintTemplate? LoadTemplate()
+        {
+            var dbPath = System.Environment.GetEnvironmentVariable("BETTER_ACCOUNTING_DB_PATH");
+            if (string.IsNullOrEmpty(dbPath))
+            {
+                dbPath = System.IO.Path.Combine(
+                    System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
+                    "BetterAccounting", "data.db");
+            }
+
+            try
+            {
+                using var context = new SQLiteContext(dbPath);
+                var repository = new PrintTemplateRepository(context.Connection);
+                return repository.GetDefaultAsync(DocumentType.Invoice).GetAwaiter().GetResult();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private void Print()
         {
             var count = CopyCount;
@@ -53,7 +77,7 @@ namespace BetterAccounting.UI.ViewModels
             for (var i = 1; i <= count; i++)
             {
                 var label = i == 1 ? "ORIGINAL" : i == 2 ? "DUPLICATE" : "TRIPLICATE";
-                var document = VoucherDocumentBuilder.Build(_entry, _company, label);
+                var document = VoucherDocumentBuilder.Build(_entry, _company, label, _template);
                 dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,
                     $"Voucher {_entry.VoucherNo} - {label}");
             }

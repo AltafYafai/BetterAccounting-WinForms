@@ -1,0 +1,13 @@
+<Window x:Class="BetterAccounting.UI.Views.DocumentPreviewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Print Preview" Height="650" Width="780">
+    <DockPanel>
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar>
+                <Button Content="Close" Click="Close_Click" Padding="10,2"/>
+            </ToolBar>
+        </ToolBarTray>
+        <FlowDocumentReader x:Name="Viewer"/>
+    </DockPanel>
+</Window>

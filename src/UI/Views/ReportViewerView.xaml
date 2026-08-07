@@ -27,6 +27,7 @@
         <!-- Action Buttons -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
             <Button Content="Export" Command="{Binding ExportCommand}" Margin="5"/>
+            <Button Content="Print" Command="{Binding PrintCommand}" Margin="5"/>
         </StackPanel>
 
         <!-- Report Grid -->
