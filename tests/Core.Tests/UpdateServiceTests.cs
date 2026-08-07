@@ -103,7 +103,11 @@ namespace BetterAccounting.Core.Tests
             {
                 DownloadUrl = "https://example.test/BetterAccounting.exe"
             };
-            await service.DownloadAsync(info, target);
+            var target = Path.Combine(Path.GetTempPath(), $"update_{Guid.NewGuid():N}.exe");
+
+            try
+            {
+                await service.DownloadAsync(info, target);
                 Assert.IsTrue(File.Exists(target));
             }
             finally
