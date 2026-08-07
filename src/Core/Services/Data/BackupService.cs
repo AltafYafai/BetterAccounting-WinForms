@@ -10,13 +10,13 @@ namespace BetterAccounting.Core.Services.Data
         private readonly string _dbPath;
         private readonly string _backupDirectory;
 
-        public BackupService(string dbPath = null, string backupDirectory = null)
+        public BackupService(string? dbPath = null, string? backupDirectory = null)
         {
             _dbPath = dbPath ?? GetDefaultDbPath();
             _backupDirectory = backupDirectory ?? GetDefaultBackupDirectory();
         }
 
-        public async Task<string> CreateBackupAsync(string backupName = null)
+        public async Task<string> CreateBackupAsync(string? backupName = null)
         {
             if (!File.Exists(_dbPath))
                 throw new FileNotFoundException("Database file not found");
