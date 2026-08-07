@@ -38,7 +38,7 @@ namespace BetterAccounting.UI.ViewModels
             }
 
             _context = new SQLiteContext(dbPath);
-            _accountRepository = new AccountRepository(((SQLiteContext)_context)._connection);
+            _accountRepository = new AccountRepository(((SQLiteContext)_context).Connection);
             _financialStatementService = new FinancialStatementService(_context);
 
             SaveCommand = new RelayCommand(async () => await SaveAsync(), () => IsFormValid());

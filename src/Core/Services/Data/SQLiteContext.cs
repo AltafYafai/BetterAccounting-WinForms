@@ -10,6 +10,8 @@ namespace BetterAccounting.Core.Services.Data
     public class SQLiteContext : IDataContext, IDisposable
     {
         private readonly SqliteConnection _connection;
+        
+        public SqliteConnection Connection => _connection;
 
         public SQLiteContext(string dbPath)
         {

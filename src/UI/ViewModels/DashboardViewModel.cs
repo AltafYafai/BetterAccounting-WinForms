@@ -31,7 +31,7 @@ namespace BetterAccounting.UI.ViewModels
             }
 
             _context = new SQLiteContext(dbPath);
-            _accountRepository = new AccountRepository(((SQLiteContext)_context)._connection);
+            _accountRepository = new AccountRepository(((SQLiteContext)_context).Connection);
             _trialBalanceService = new TrialBalanceService(_context);
             _financialStatementService = new FinancialStatementService(_context);
 
