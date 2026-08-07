@@ -20,10 +20,7 @@ jobs:
         dotnet-version: 8.0.x
         
     - name: Restore dependencies
-      run: dotnet restore src/BetterAccounting.sln -r win-x64
-      
-    - name: Build
-      run: dotnet build src/BetterAccounting.sln --no-restore --configuration Release -r win-x64
+      run: dotnet restore src/UI/UI.csproj -r win-x64
       
     - name: Publish Single-File Executable
       run: dotnet publish src/UI/UI.csproj --configuration Release --runtime win-x64 --output ./publish
@@ -31,7 +28,7 @@ jobs:
     - name: Inspect Publish Output
       run: dir publish
       
-    - name: Create Release
+    - name: Create Release Assets
       uses: softprops/action-gh-release@v2
       with:
         files: |
