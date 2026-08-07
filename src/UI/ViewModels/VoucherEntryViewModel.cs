@@ -113,9 +113,11 @@ namespace BetterAccounting.UI.ViewModels
 
         public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
-        public IEnumerable? GetErrors(string? propertyName)
+        IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName)
         {
-            return string.IsNullOrEmpty(propertyName) ? _errors.SelectMany(e => e.Value) : _errors.GetValueOrDefault(propertyName, new List<string>());
+            return string.IsNullOrEmpty(propertyName) 
+                ? _errors.SelectMany(e => e.Value).ToArray()
+                : _errors.GetValueOrDefault(propertyName, new List<string>());
         }
 
         #endregion
