@@ -28,7 +28,7 @@ jobs:
       run: dotnet test src/BetterAccounting.sln --no-build --verbosity normal
       
     - name: Publish
-      run: dotnet publish src/BetterAccounting.UI/BetterAccounting.UI.csproj --configuration Release --runtime win-x64 --output ./publish
+      run: dotnet publish src/UI/UI.csproj --configuration Release --runtime win-x64 --output ./publish
       
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
