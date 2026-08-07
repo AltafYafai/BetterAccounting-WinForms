@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Windows.Input;
-using BetterAccounting.UI.ViewModels;
+using BetterAccounting.UI.Models;
 
 namespace BetterAccounting.UI.ViewModels
 {

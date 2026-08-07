@@ -1,5 +1,7 @@
+using BetterAccounting.Core.Data.Models;
 using BetterAccounting.Core.Services.Data;
 using BetterAccounting.Core.Services.Reports;
+using BetterAccounting.UI.Models;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;

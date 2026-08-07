@@ -1,4 +1,5 @@
 using BetterAccounting.Core.Services.Data;
+using BetterAccounting.UI.Models;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;

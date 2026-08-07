@@ -1,9 +1,13 @@
 using BetterAccounting.Core.Data.Models;
 using BetterAccounting.Core.Services.Data;
+using BetterAccounting.UI.Models;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace BetterAccounting.UI.ViewModels
