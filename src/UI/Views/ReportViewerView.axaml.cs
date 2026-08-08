@@ -1,3 +1,5 @@
+using Avalonia.Controls;
+
 namespace BetterAccounting.UI.Views
 {
     public partial class ReportViewerView : Window

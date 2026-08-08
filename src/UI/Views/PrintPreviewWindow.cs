@@ -3,7 +3,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Media.Transform;
 using BetterAccounting.Core.Data.Models;
 using BetterAccounting.UI.Models;
 using BetterAccounting.UI.ViewModels;

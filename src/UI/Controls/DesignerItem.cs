@@ -151,20 +151,20 @@ namespace BetterAccounting.UI.Controls
                 _designerCanvas.SelectItem(_item);
         }
 
-        private void OnMoveDragDelta(object sender, DragDeltaEventArgs e)
+        private void OnMoveDragDelta(object sender, VectorEventArgs e)
         {
-            _item.X += e.HorizontalChange;
-            _item.Y += e.VerticalChange;
+            _item.X += e.Vector.X;
+            _item.Y += e.Vector.Y;
         }
 
-        private void OnResizeDragDelta(ResizeEdge edge, DragDeltaEventArgs e)
+        private void OnResizeDragDelta(ResizeEdge edge, VectorEventArgs e)
         {
             var x = _startX;
             var y = _startY;
             var w = _startWidth;
             var h = _startHeight;
-            var hChange = e.HorizontalChange;
-            var vChange = e.VerticalChange;
+            var hChange = e.Vector.X;
+            var vChange = e.Vector.Y;
 
             switch (edge)
             {
