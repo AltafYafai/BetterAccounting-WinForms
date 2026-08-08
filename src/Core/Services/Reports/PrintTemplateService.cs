@@ -35,6 +35,7 @@ namespace BetterAccounting.Core.Services.Reports
         private static readonly TokenDefinition[] Invoice = Company
             .Concat(new[]
             {
+                new TokenDefinition("CopyLabel", "Copy Label"),
                 new TokenDefinition("VoucherType", "Voucher Type"),
                 new TokenDefinition("VoucherNo", "Voucher No"),
                 new TokenDefinition("Date", "Date"),
@@ -49,6 +50,7 @@ namespace BetterAccounting.Core.Services.Reports
         private static readonly TokenDefinition[] Ledger = Company
             .Concat(new[]
             {
+                new TokenDefinition("CopyLabel", "Copy Label"),
                 new TokenDefinition("AccountName", "Account"),
                 new TokenDefinition("OpeningBalance", "Opening Balance"),
                 new TokenDefinition("FromDate", "From Date"),
@@ -60,6 +62,7 @@ namespace BetterAccounting.Core.Services.Reports
         private static readonly TokenDefinition[] Cover = Company
             .Concat(new[]
             {
+                new TokenDefinition("CopyLabel", "Copy Label"),
                 new TokenDefinition("ReportTitle", "Report Title"),
                 new TokenDefinition("FromDate", "From Date"),
                 new TokenDefinition("ToDate", "To Date"),
@@ -71,6 +74,7 @@ namespace BetterAccounting.Core.Services.Reports
         private static readonly TokenDefinition[] Report = Company
             .Concat(new[]
             {
+                new TokenDefinition("CopyLabel", "Copy Label"),
                 new TokenDefinition("ReportTitle", "Report Title"),
                 new TokenDefinition("FromDate", "From Date"),
                 new TokenDefinition("ToDate", "To Date"),
@@ -188,6 +192,13 @@ namespace BetterAccounting.Core.Services.Reports
                 "\nPrinted on   : {CreatedDate}",
             _ => ""
         };
+
+        public static string Substitute(string text, IReadOnlyDictionary<string, string> fields)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+            return TokenRegex.Replace(text, m => fields.GetValueOrDefault(m.Groups[1].Value, string.Empty));
+        }
 
         public static string[] Render(string content, IReadOnlyDictionary<string, string> fields)
         {

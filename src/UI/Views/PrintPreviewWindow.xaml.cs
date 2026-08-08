@@ -1,5 +1,7 @@
 using BetterAccounting.Core.Data.Models;
+using BetterAccounting.UI.ViewModels;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace BetterAccounting.UI.Views
 {
@@ -8,7 +10,15 @@ namespace BetterAccounting.UI.Views
         public PrintPreviewWindow(LedgerEntry entry)
         {
             InitializeComponent();
-            DataContext = new ViewModels.PrintPreviewViewModel(entry);
+            var vm = new PrintPreviewViewModel(entry);
+            DataContext = vm;
+
+            if (vm.UsesFixedDocument)
+            {
+                FixedViewer.Document = vm.FixedDocument;
+                FixedViewer.Visibility = Visibility.Visible;
+                FlowReader.Visibility = Visibility.Collapsed;
+            }
         }
     }
 }

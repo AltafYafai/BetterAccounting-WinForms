@@ -9,5 +9,6 @@
             </ToolBar>
         </ToolBarTray>
         <FlowDocumentReader x:Name="Viewer"/>
+        <DocumentViewer x:Name="FixedViewer" Visibility="Collapsed"/>
     </DockPanel>
 </Window>

@@ -76,7 +76,10 @@ namespace BetterAccounting.UI.Models
             return doc;
         }
 
-        private static Dictionary<string, string> BuildFields(LedgerEntry entry, CompanyProfile? company)
+        public static Dictionary<string, string> BuildFields(LedgerEntry entry, CompanyProfile? company)
+            => BuildFieldDictionary(entry, company);
+
+        private static Dictionary<string, string> BuildFieldDictionary(LedgerEntry entry, CompanyProfile? company)
         {
             return new Dictionary<string, string>
             {

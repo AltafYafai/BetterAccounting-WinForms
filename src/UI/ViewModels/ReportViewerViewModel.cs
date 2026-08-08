@@ -146,11 +146,20 @@ namespace BetterAccounting.UI.ViewModels
                 { "CreatedDate", DateTime.Now.ToString("g") }
             };
 
-            var lines = PrintTemplateService.Render(content, fields).ToList();
-            lines.AddRange(await BuildReportRowsAsync((ReportType)SelectedReportIndex));
+            var reportRows = await BuildReportRowsAsync((ReportType)SelectedReportIndex);
 
-            var document = TemplateDocumentBuilder.Build(lines);
-            var preview = new Views.DocumentPreviewWindow(document, $"Print - {reportTitle}");
+            var layout = PrintTemplateSerializer.TryDeserialize(content);
+            if (layout != null)
+            {
+                var document = PrintLayoutRenderer.BuildFixedDocument(layout, fields, reportRows);
+                var fixedPreview = new Views.DocumentPreviewWindow(document, $"Print - {reportTitle}");
+                fixedPreview.Show();
+                return;
+            }
+
+            var lines = PrintTemplateService.Render(content, fields).Concat(reportRows).ToList();
+            var flowDocument = TemplateDocumentBuilder.Build(lines);
+            var preview = new Views.DocumentPreviewWindow(flowDocument, $"Print - {reportTitle}");
             preview.Show();
         }
 

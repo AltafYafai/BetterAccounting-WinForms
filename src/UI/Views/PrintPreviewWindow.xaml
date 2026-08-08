@@ -10,6 +10,7 @@
                 <Button Content="Print" Command="{Binding PrintCommand}" Padding="10,2" Margin="10,0,0,0"/>
             </ToolBar>
         </ToolBarTray>
-        <FlowDocumentReader Document="{Binding Document}"/>
+        <FlowDocumentReader x:Name="FlowReader" Document="{Binding Document}"/>
+        <DocumentViewer x:Name="FixedViewer" Visibility="Collapsed"/>
     </DockPanel>
 </Window>

@@ -1,5 +1,6 @@
 using BetterAccounting.Core.Data.Models;
 using BetterAccounting.Core.Services.Data;
+using BetterAccounting.Core.Services.Reports;
 using BetterAccounting.UI.Models;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -12,6 +13,7 @@ namespace BetterAccounting.UI.ViewModels
         private readonly LedgerEntry _entry;
         private readonly CompanyProfile? _company;
         private readonly PrintTemplate? _template;
+        private readonly PrintTemplateLayout? _layout;
         private string _selectedCopy = "Original";
 
         public PrintPreviewViewModel(LedgerEntry entry)
@@ -19,7 +21,21 @@ namespace BetterAccounting.UI.ViewModels
             _entry = entry;
             _company = LoadCompanyProfile();
             _template = LoadTemplate();
-            Document = VoucherDocumentBuilder.Build(entry, _company, "ORIGINAL", _template);
+            _layout = _template != null
+                ? PrintTemplateSerializer.TryDeserialize(_template.Content)
+                : null;
+
+            if (_layout != null)
+            {
+                FixedDocument = BuildLayoutDocument("ORIGINAL");
+                UsesFixedDocument = true;
+            }
+            else
+            {
+                Document = VoucherDocumentBuilder.Build(entry, _company, "ORIGINAL", _template);
+                UsesFixedDocument = false;
+            }
+
             PrintCommand = new RelayCommand(Print);
         }
 
@@ -55,6 +71,13 @@ namespace BetterAccounting.UI.ViewModels
             }
         }
 
+        private FixedDocument BuildLayoutDocument(string copyLabel)
+        {
+            var fields = VoucherDocumentBuilder.BuildFields(_entry, _company);
+            fields["CopyLabel"] = copyLabel;
+            return PrintLayoutRenderer.BuildFixedDocument(_layout!, fields);
+        }
+
         private void Print()
         {
             var count = CopyCount;
@@ -65,9 +88,18 @@ namespace BetterAccounting.UI.ViewModels
             for (var i = 1; i <= count; i++)
             {
                 var label = i == 1 ? "ORIGINAL" : i == 2 ? "DUPLICATE" : "TRIPLICATE";
-                var document = VoucherDocumentBuilder.Build(_entry, _company, label, _template);
-                dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,
-                    $"Voucher {_entry.VoucherNo} - {label}");
+                if (UsesFixedDocument && _layout != null)
+                {
+                    var document = BuildLayoutDocument(label);
+                    dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,
+                        $"Voucher {_entry.VoucherNo} - {label}");
+                }
+                else
+                {
+                    var document = VoucherDocumentBuilder.Build(_entry, _company, label, _template);
+                    dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,
+                        $"Voucher {_entry.VoucherNo} - {label}");
+                }
             }
         }
 
@@ -79,7 +111,9 @@ namespace BetterAccounting.UI.ViewModels
         };
 
         public string[] CopyOptions { get; } = { "Original", "Duplicate", "Triplicate" };
-        public FlowDocument Document { get; }
+        public FlowDocument? Document { get; }
+        public FixedDocument? FixedDocument { get; }
+        public bool UsesFixedDocument { get; }
 
         public string SelectedCopy
         {
