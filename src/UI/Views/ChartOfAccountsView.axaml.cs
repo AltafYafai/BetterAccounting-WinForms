@@ -41,7 +41,7 @@ namespace BetterAccounting.UI.Views
         private async void AddAccount_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new AccountEditorView(new ViewModels.AccountEditorViewModel(_repository));
-            if (await dialog.ShowDialog<bool>(this) ?? false)
+            if (await dialog.ShowDialog<bool>(this))
                 await LoadAccountsAsync();
         }
 
@@ -51,7 +51,7 @@ namespace BetterAccounting.UI.Views
                 return;
 
             var dialog = new AccountEditorView(new ViewModels.AccountEditorViewModel(_repository, selected));
-            if (await dialog.ShowDialog<bool>(this) ?? false)
+            if (await dialog.ShowDialog<bool>(this))
                 await LoadAccountsAsync();
         }
 

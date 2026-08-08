@@ -22,7 +22,7 @@ namespace BetterAccounting.UI.ViewModels
             RefreshCommand = new RelayCommand(async () => await RefreshBackupsAsync());
             BackupCommand = new RelayCommand(async () => await CreateBackupAsync(), () => !IsOperationInProgress);
             RestoreCommand = new RelayCommand(async () => await RestoreBackupAsync(), () => !IsOperationInProgress && !string.IsNullOrEmpty(SelectedBackup));
-            BrowseCommand = new RelayCommand(BrowseForBackup);
+            BrowseCommand = new RelayCommand(async () => await BrowseForBackup());
 
             _ = RefreshBackupsAsync();
         }

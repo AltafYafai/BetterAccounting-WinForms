@@ -2,6 +2,7 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using BetterAccounting.Core.Data.Models;
@@ -148,7 +149,7 @@ namespace BetterAccounting.UI.Views
             return panel;
         }
 
-        private static Button MakeButton(string glyph, EventHandler handler)
+        private static Button MakeButton(string glyph, EventHandler<RoutedEventArgs> handler)
         {
             var button = new Button
             {
@@ -163,8 +164,8 @@ namespace BetterAccounting.UI.Views
             return button;
         }
 
-        private void OnZoomOut(object? sender, EventArgs e) => SetZoom(_zoom - 0.1);
-        private void OnZoomIn(object? sender, EventArgs e) => SetZoom(_zoom + 0.1);
+        private void OnZoomOut(object? sender, RoutedEventArgs e) => SetZoom(_zoom - 0.1);
+        private void OnZoomIn(object? sender, RoutedEventArgs e) => SetZoom(_zoom + 0.1);
 
         private void SetZoom(double zoom)
         {

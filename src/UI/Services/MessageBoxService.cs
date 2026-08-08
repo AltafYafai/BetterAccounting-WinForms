@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -65,7 +66,7 @@ namespace BetterAccounting.UI.Services
                     break;
             }
 
-            var message = new TextBlock
+            var messageText = new TextBlock
             {
                 Text = message,
                 TextWrapping = TextWrapping.Wrap,
@@ -75,7 +76,7 @@ namespace BetterAccounting.UI.Services
 
             var topPanel = new StackPanel { Orientation = Orientation.Horizontal };
             topPanel.Children.Add(icon);
-            topPanel.Children.Add(message);
+            topPanel.Children.Add(messageText);
 
             var buttonsPanel = new StackPanel
             {

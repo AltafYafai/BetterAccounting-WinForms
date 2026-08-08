@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using BetterAccounting.UI.Models;
 using PdfSharpCore.Drawing;
@@ -41,30 +42,31 @@ namespace BetterAccounting.UI.Services
 
             foreach (var page in document.Pages)
             {
-                if (page is not Visual visual)
+                if (page is not Control control)
                     continue;
 
-                var widthDips = page.Width ?? page.Bounds.Width;
-                var heightDips = page.Height ?? page.Bounds.Height;
+                var widthDips = double.IsFinite(control.Width) && control.Width > 0
+                    ? control.Width
+                    : control.Bounds.Width;
+                var heightDips = double.IsFinite(control.Height) && control.Height > 0
+                    ? control.Height
+                    : control.Bounds.Height;
                 if (widthDips <= 0) widthDips = 794;
                 if (heightDips <= 0) heightDips = 1123;
 
                 const int scale = 2;
-                visual.Measure(new Size(widthDips, heightDips));
-                visual.Arrange(new Rect(0, 0, widthDips, heightDips));
+                control.Measure(new Size(widthDips, heightDips));
+                control.Arrange(new Rect(0, 0, widthDips, heightDips));
 
                 using var bitmap = new RenderTargetBitmap(
                     (int)Math.Ceiling(widthDips * scale),
                     (int)Math.Ceiling(heightDips * scale));
-                bitmap.Render(visual);
-
-                using var pngStream = bitmap.Encode(new PngEncoder());
+                bitmap.Render(control);
 
                 var tempPng = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".png");
                 try
                 {
-                    using (var fs = File.Create(tempPng))
-                        pngStream.CopyTo(fs);
+                    bitmap.Save(tempPng);
 
                     using var image = XImage.FromFile(tempPng);
 

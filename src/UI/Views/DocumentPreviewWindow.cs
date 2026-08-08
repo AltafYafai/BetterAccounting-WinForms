@@ -1,6 +1,8 @@
 using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using BetterAccounting.UI.Models;
@@ -79,7 +81,7 @@ namespace BetterAccounting.UI.Views
             var titleText = new TextBlock
             {
                 Text = Title ?? "Print Preview",
-                FontWeight = FontWeights.SemiBold,
+                FontWeight = FontWeight.SemiBold,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(12, 0, 16, 0)
             };
@@ -132,7 +134,7 @@ namespace BetterAccounting.UI.Views
             return panel;
         }
 
-        private static Button MakeToolbarButton(string glyph, EventHandler handler)
+        private static Button MakeToolbarButton(string glyph, EventHandler<RoutedEventArgs> handler)
         {
             var button = new Button
             {
@@ -147,8 +149,8 @@ namespace BetterAccounting.UI.Views
             return button;
         }
 
-        private void OnZoomOut(object? sender, EventArgs e) => SetZoom(_zoom - 0.1);
-        private void OnZoomIn(object? sender, EventArgs e) => SetZoom(_zoom + 0.1);
+        private void OnZoomOut(object? sender, RoutedEventArgs e) => SetZoom(_zoom - 0.1);
+        private void OnZoomIn(object? sender, RoutedEventArgs e) => SetZoom(_zoom + 0.1);
 
         private void SetZoom(double zoom)
         {
@@ -157,7 +159,7 @@ namespace BetterAccounting.UI.Views
             _zoomLabel.Text = $"{Math.Round(_zoom * 100)}%";
         }
 
-        private async void OnPrint(object? sender, EventArgs e)
+        private async void OnPrint(object? sender, RoutedEventArgs e)
         {
             try
             {

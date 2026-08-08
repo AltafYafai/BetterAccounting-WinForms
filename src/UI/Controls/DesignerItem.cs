@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using System;
@@ -246,7 +247,7 @@ namespace BetterAccounting.UI.Controls
 
         public void RefreshZIndex()
         {
-            Canvas.SetZIndex(this, _item.ZIndex + (_isSelected ? 10000 : 0));
+            Panel.SetZIndex(this, _item.ZIndex + (_isSelected ? 10000 : 0));
         }
     }
 }

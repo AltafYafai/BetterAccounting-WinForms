@@ -2,6 +2,7 @@ using BetterAccounting.Core.Data.Models;
 using BetterAccounting.Core.Services.Reports;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Layout;
 using Avalonia.Media;
 using System;
@@ -76,7 +77,7 @@ namespace BetterAccounting.UI.Models
                 {
                     Text = line.Substring(3),
                     FontSize = TitleFontSize,
-                    FontWeight = FontWeights.Bold,
+                    FontWeight = FontWeight.Bold,
                     TextAlignment = TextAlignment.Center,
                     Margin = new Thickness(padding, 6, padding, 6),
                     TextWrapping = TextWrapping.Wrap,
@@ -101,7 +102,7 @@ namespace BetterAccounting.UI.Models
                 {
                     Text = line.Substring(3),
                     FontSize = FontSize,
-                    FontWeight = FontWeights.Bold,
+                    FontWeight = FontWeight.Bold,
                     Margin = new Thickness(padding, 1, padding, 1),
                     TextWrapping = TextWrapping.Wrap,
                     FontFamily = fontFamily
@@ -113,7 +114,7 @@ namespace BetterAccounting.UI.Models
                 {
                     Text = line.Substring(3),
                     FontSize = CopyFontSize,
-                    FontWeight = FontWeights.Bold,
+                    FontWeight = FontWeight.Bold,
                     TextAlignment = TextAlignment.Right,
                     Margin = new Thickness(padding, 1, padding, 1),
                     TextWrapping = TextWrapping.Wrap,
@@ -133,7 +134,7 @@ namespace BetterAccounting.UI.Models
                 };
                 if (separator > 0)
                 {
-                    block.Inlines.Add(new Run(text.Substring(0, separator + 1)) { FontWeight = FontWeights.Bold });
+                    block.Inlines.Add(new Run(text.Substring(0, separator + 1)) { FontWeight = FontWeight.Bold });
                     block.Inlines.Add(new Run(text.Substring(separator + 1)));
                 }
                 else

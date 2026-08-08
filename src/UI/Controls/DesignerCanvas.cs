@@ -85,7 +85,7 @@ namespace BetterAccounting.UI.Controls
         private void OnCanvasPointerPressed(object sender, PointerPressedEventArgs e)
         {
             Focus();
-            if (e.OriginalSource is DesignerCanvas)
+            if (e.Source is DesignerCanvas)
                 SelectItem(null);
         }
     }
