@@ -44,3 +44,25 @@ jobs:
       with:
         name: betteraccounting-windows-single-file
         path: ./publish/BetterAccounting.exe
+
+    - name: Publish Telegram Build
+      run: dotnet publish src/UI/UI.csproj --configuration Release --runtime win-x64 --output ./telegram -p:PublishReadyToRun=false
+
+    - name: Upload to Telegram
+      shell: bash
+      run: |
+        set -e
+        (cd ./telegram && powershell -Command "Compress-Archive -Path BetterAccounting.exe -DestinationPath ../BetterAccounting-windows-x64.zip -CompressionLevel Optimal")
+        SIZE=$(stat -c%s ./BetterAccounting-windows-x64.zip)
+        echo "Telegram upload size: $SIZE bytes"
+        if [ "$SIZE" -le 52428800 ]; then
+          curl -sS -f -F "chat_id=${{ secrets.TG_CHAT_ID }}" \
+               -F "document=@./BetterAccounting-windows-x64.zip" \
+               -F "caption=BetterAccounting - Windows x64" \
+               "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendDocument"
+        else
+          curl -sS -f -F "chat_id=${{ secrets.TG_CHAT_ID }}" \
+               -F "text=BetterAccounting - Windows x64 ($SIZE bytes exceeds the 50MB Telegram limit). Download: https://github.com/AltafYafai/BetterAccounting-WinForms/releases/latest/download/BetterAccounting.exe" \
+               "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage"
+        fi
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
