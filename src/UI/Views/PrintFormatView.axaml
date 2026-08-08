@@ -55,8 +55,13 @@
             <!-- Template list -->
             <DockPanel Grid.Column="0" Margin="0,0,8,0">
                 <TextBlock DockPanel.Dock="Top" Text="Saved Formats" FontWeight="Bold" Margin="0,0,0,6"/>
-                <ListBox ItemsSource="{Binding Templates}" SelectedItem="{Binding SelectedTemplate, Mode=TwoWay}"
-                         DisplayMemberPath="Name"/>
+                <ListBox ItemsSource="{Binding Templates}" SelectedItem="{Binding SelectedTemplate, Mode=TwoWay}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </DockPanel>
 
             <!-- Designer -->
@@ -95,8 +100,10 @@
             <!-- Properties -->
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="4">
-                    <GroupBox Header="General" Padding="6">
-                        <Grid>
+                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="6">
+                        <StackPanel>
+                            <TextBlock Text="General" FontWeight="Bold" Margin="0,0,0,6"/>
+                            <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="70"/>
                                 <ColumnDefinition Width="*"/>
@@ -132,11 +139,14 @@
                             <TextBlock Grid.Row="3" Grid.Column="3" VerticalAlignment="Center"
                                        Text="{Binding SelectedItem.Opacity, StringFormat={}{0:0.00}}"/>
                         </Grid>
-                    </GroupBox>
+                        </StackPanel>
+                    </Border>
 
-                    <GroupBox Header="Text" Padding="6" Margin="0,6,0,0"
-                              IsVisible="{Binding IsTextItemSelected}">
+                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="6" Margin="0,6,0,0"
+                            IsVisible="{Binding IsTextItemSelected}">
                         <StackPanel>
+                            <TextBlock Text="Text" FontWeight="Bold" Margin="0,0,0,6"/>
+                            <StackPanel>
                             <TextBlock Text="Text (use {tokens} for fields):" Margin="0,2"/>
                             <TextBox Text="{Binding SelectedItem.Text, Mode=TwoWay}"
                                      AcceptsReturn="True" Height="52" TextWrapping="Wrap" Margin="0,2"/>
@@ -183,11 +193,14 @@
                                           SelectedItem="{Binding SelectedItem.VerticalAlignment, Mode=TwoWay}" Height="24"/>
                             </DockPanel>
                         </StackPanel>
-                    </GroupBox>
+                        </StackPanel>
+                    </Border>
 
-                    <GroupBox Header="Shape / Border" Padding="6" Margin="0,6,0,0"
-                              IsVisible="{Binding IsShapeItemSelected}">
+                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="6" Margin="0,6,0,0"
+                            IsVisible="{Binding IsShapeItemSelected}">
                         <StackPanel>
+                            <TextBlock Text="Shape / Border" FontWeight="Bold" Margin="0,0,0,6"/>
+                            <StackPanel>
                             <DockPanel Margin="0,2">
                                 <TextBlock Text="Fill:" Width="56" VerticalAlignment="Center"/>
                                 <ComboBox ItemsSource="{Binding ColorChoices}" ItemTemplate="{StaticResource ColorTemplate}"
@@ -203,7 +216,8 @@
                                 <TextBox Text="{Binding SelectedItem.BorderThickness, Mode=TwoWay}" Width="60" Height="22"/>
                             </DockPanel>
                         </StackPanel>
-                    </GroupBox>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </ScrollViewer>
         </Grid>

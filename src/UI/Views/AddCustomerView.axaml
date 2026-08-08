@@ -37,7 +37,7 @@
                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}" Margin="5,3" VerticalAlignment="Center"/>
 
                 <Label Grid.Row="1" Grid.Column="0" Content="Address:" VerticalAlignment="Top" Margin="0,5,0,0"/>
-                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Address}" TextWrapping="Wrap" AcceptsReturn="True" Height="70" Margin="5,3" VerticalScrollBarVisibility="Auto"/>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Address}" TextWrapping="Wrap" AcceptsReturn="True" Height="70" Margin="5,3" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
 
                 <Label Grid.Row="2" Grid.Column="0" Content="City:" VerticalAlignment="Center"/>
                 <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding City}" Margin="5,3" VerticalAlignment="Center"/>

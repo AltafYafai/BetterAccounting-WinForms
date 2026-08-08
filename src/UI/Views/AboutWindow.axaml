@@ -28,11 +28,9 @@
 
             <TextBlock Text="{Binding Tagline}" TextWrapping="Wrap" Margin="0,0,0,4"/>
             <TextBlock Text="{Binding Author}" Margin="0,0,0,4"/>
-            <TextBlock>
-                <Hyperlink Command="{Binding OpenReleasesCommand}">
-                    <Run Text="{Binding RepositoryUrl, Mode=OneWay}"/>
-                </Hyperlink>
-            </TextBlock>
+            <Button Content="{Binding RepositoryUrl, Mode=OneWay}" Command="{Binding OpenReleasesCommand}"
+                    HorizontalAlignment="Left" Padding="0" Background="Transparent" BorderThickness="0"
+                    Foreground="#1a73e8"/>
 
             <Separator Margin="0,12"/>
 
