@@ -69,9 +69,9 @@ namespace BetterAccounting.UI.Views
             {
                 Content = "Copy Error",
                 MinWidth = 100,
-                Padding = new Thickness(12, 4),
-                ToolTip.Tip = "Copy the full error details to the clipboard"
+                Padding = new Thickness(12, 4)
             };
+            ToolTip.SetTip(copyButton, "Copy the full error details to the clipboard");
             copyButton.Click += async (_, _) =>
             {
                 var clipboard = Clipboard;
@@ -84,9 +84,9 @@ namespace BetterAccounting.UI.Views
                 Content = "Send Error Report",
                 MinWidth = 150,
                 Padding = new Thickness(12, 4),
-                Margin = new Thickness(8, 0, 0, 0),
-                ToolTip.Tip = "Opens your email app with the error report ready to send"
+                Margin = new Thickness(8, 0, 0, 0)
             };
+            ToolTip.SetTip(mailButton, "Opens your email app with the error report ready to send");
             mailButton.Click += (_, _) => SendByEmail();
 
             var telegramButton = new Button
@@ -94,9 +94,9 @@ namespace BetterAccounting.UI.Views
                 Content = "Send to Telegram",
                 MinWidth = 150,
                 Padding = new Thickness(12, 4),
-                Margin = new Thickness(8, 0, 0, 0),
-                ToolTip.Tip = "Upload the error report to the Telegram support channel"
+                Margin = new Thickness(8, 0, 0, 0)
             };
+            ToolTip.SetTip(telegramButton, "Upload the error report to the Telegram support channel");
             telegramButton.Click += async (_, _) =>
             {
                 telegramButton.IsEnabled = false;
