@@ -8,7 +8,7 @@ namespace BetterAccounting.UI.Models
 {
     public static class ErrorReporter
     {
-        public const string SupportEmail = "support@betteraccounting.app";
+        public const string SupportEmail = "altaf.alu@gmail.com";
 
         public static void Log(string operation, Exception ex) => ErrorLog.Write(operation, ex);
 
