@@ -9,5 +9,10 @@ namespace BetterAccounting.UI.Views
             InitializeComponent();
             DataContext = new ViewModels.DashboardViewModel();
         }
+
+        private void OnExitClick(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
     }
 }
