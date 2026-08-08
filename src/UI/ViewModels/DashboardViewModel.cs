@@ -77,6 +77,8 @@ namespace BetterAccounting.UI.ViewModels
                     IsActive = c.Id == activeId
                 }));
 
+            ActiveCompanyName = _companyManager.Active?.Name ?? "";
+
             _isSwitching = true;
             SelectedCompany = Companies.FirstOrDefault(i => i.Id == activeId) ?? Companies.FirstOrDefault();
             _isSwitching = false;
@@ -145,64 +147,55 @@ namespace BetterAccounting.UI.ViewModels
         private void OpenVoucherEntry(VoucherType voucherType)
         {
             var view = new Views.VoucherEntryView(voucherType);
-            var window = new Window { Content = view, Title = "Voucher Entry", Width = 720, Height = 520 };
-            window.Show();
+            view.Show();
         }
 
         private void OpenSyncSettings()
         {
             var view = new Views.SyncSettingsView();
-            var window = new Window { Content = view, Title = "Sync Settings", Width = 600, Height = 400 };
-            window.Show();
+            view.Show();
         }
 
         private void OpenReports()
         {
             var view = new Views.ReportViewerView();
-            var window = new Window { Content = view, Title = "Reports", Width = 900, Height = 600 };
-            window.Show();
+            view.Show();
         }
 
         private void OpenCatchUp()
         {
             var view = new Views.CatchUpReportView();
-            var window = new Window { Content = view, Title = "Catch-Up Payments", Width = 850, Height = 600 };
-            window.Show();
+            view.Show();
         }
 
         private void OpenBackupRestore()
         {
             var view = new Views.BackupRestoreView();
-            var window = new Window { Content = view, Title = "Backup & Restore", Width = 700, Height = 500 };
-            window.Show();
+            view.Show();
         }
 
         private void OpenAccounts()
         {
             var view = new Views.ChartOfAccountsView();
-            var window = new Window { Content = view, Title = "Chart of Accounts", Width = 800, Height = 500 };
-            window.Show();
+            view.Show();
         }
 
         private void OpenCompanyProfile()
         {
             var view = new Views.CompanySettingsView();
-            var window = new Window { Content = view, Title = "Company Profile", Width = 640, Height = 620 };
-            window.Show();
+            view.Show();
         }
 
         private void OpenGstSlabs()
         {
             var view = new Views.GstSlabView();
-            var window = new Window { Content = view, Title = "GST Slabs", Width = 700, Height = 520 };
-            window.Show();
+            view.Show();
         }
 
         private void OpenAddCustomer()
         {
             var view = new Views.AddCustomerView();
-            var window = new Window { Content = view, Title = "Add Customer", Width = 640, Height = 580 };
-            window.Show();
+            view.Show();
         }
 
         private void OpenAbout()
@@ -263,7 +256,8 @@ namespace BetterAccounting.UI.ViewModels
 
         public string ActiveCompanyName
         {
-            get => _companyManager.Active.Name;
+            get => _activeCompanyName;
+            private set => SetProperty(ref _activeCompanyName, value);
         }
 
         public bool IsBusy
@@ -317,6 +311,7 @@ namespace BetterAccounting.UI.ViewModels
         private bool _isSwitching;
         private bool _isBusy;
         private string _statusMessage = "";
+        private string _activeCompanyName = "";
 
         private static Window? DialogOwner => AppServices.GetMainWindow();
 

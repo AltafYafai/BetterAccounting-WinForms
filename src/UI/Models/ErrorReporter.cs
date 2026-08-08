@@ -23,8 +23,9 @@ namespace BetterAccounting.UI.Models
             ErrorLog.Write(operation, ex);
             if (Application.Current != null)
             {
+                var report = BuildReport(operation, ex);
                 var message = $"{operation} failed.\n\n{Describe(ex)}";
-                _ = MessageBoxService.ShowAsync(message, "Error", MessageBoxButtons.OK, MessageBoxImage.Error,
+                _ = Views.ErrorDialogWindow.ShowAsync(operation, message, report,
                     AppServices.GetMainWindow());
             }
         }
