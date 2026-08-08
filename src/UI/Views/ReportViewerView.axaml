@@ -34,13 +34,11 @@
         <DataGrid Grid.Row="2" ItemsSource="{Binding ReportData}"
                   AutoGenerateColumns="True" IsReadOnly="True" Margin="0,0,0,10"/>
 
-        <StatusBar Grid.Row="3">
-            <StatusBarItem>
-                <TextBlock Text="{Binding SelectedReportIndex}"/>
-            </StatusBarItem>
-            <StatusBarItem>
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="OrangeRed" TextWrapping="Wrap" FontWeight="Bold"/>
-            </StatusBarItem>
-        </StatusBar>
+        <Border Grid.Row="3" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="4,6">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding SelectedReportIndex}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                <TextBlock Grid.Column="2" Text="{Binding ErrorMessage}" Foreground="OrangeRed" TextWrapping="Wrap" FontWeight="Bold" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
     </Grid>
 </Window>
