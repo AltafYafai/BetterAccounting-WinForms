@@ -29,7 +29,7 @@ namespace BetterAccounting.UI.Models
                 Canvas.SetTop(shape, y);
                 shape.Width = w;
                 shape.Height = h;
-                Panel.SetZIndex(shape, item.ZIndex);
+                shape.ZIndex = item.ZIndex;
                 canvas.Children.Add(shape);
             }
 

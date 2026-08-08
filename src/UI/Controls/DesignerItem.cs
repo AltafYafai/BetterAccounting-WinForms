@@ -26,7 +26,7 @@ namespace BetterAccounting.UI.Controls
 
         private Grid _root = new();
         private Grid _shapeHost = new();
-        private Control _shape;
+        private Control _shape = null!;
         private Thumb _moveThumb;
         private Border _selectionBorder = new();
         private readonly List<Thumb> _resizeThumbs = new();
@@ -247,7 +247,7 @@ namespace BetterAccounting.UI.Controls
 
         public void RefreshZIndex()
         {
-            Panel.SetZIndex(this, _item.ZIndex + (_isSelected ? 10000 : 0));
+            ZIndex = _item.ZIndex + (_isSelected ? 10000 : 0);
         }
     }
 }

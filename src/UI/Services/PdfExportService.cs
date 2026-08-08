@@ -59,8 +59,8 @@ namespace BetterAccounting.UI.Services
                 control.Arrange(new Rect(0, 0, widthDips, heightDips));
 
                 using var bitmap = new RenderTargetBitmap(
-                    (int)Math.Ceiling(widthDips * scale),
-                    (int)Math.Ceiling(heightDips * scale));
+                    new PixelSize((int)Math.Ceiling(widthDips * scale), (int)Math.Ceiling(heightDips * scale)),
+                    new Vector(96, 96));
                 bitmap.Render(control);
 
                 var tempPng = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".png");
