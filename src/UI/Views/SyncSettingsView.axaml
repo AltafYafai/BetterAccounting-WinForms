@@ -1,0 +1,45 @@
+<Window x:Class="BetterAccounting.UI.Views.SyncSettingsView"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:primitives="using:Avalonia.Controls.Primitives"
+        Title="Sync Settings" Height="350" Width="500"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Sync Enable Toggle -->
+        <CheckBox Grid.Row="0" Grid.Column="0" Content="Enable Sync" 
+                  IsChecked="{Binding IsSyncEnabled}" Margin="0,0,10,10"/>
+
+        <!-- Sync Folder Path -->
+        <Label Grid.Row="1" Grid.Column="0" Content="Sync Folder:" VerticalAlignment="Center"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SyncFolderPath}" 
+                 VerticalAlignment="Center" Margin="5,0"/>
+
+        <!-- Browse Button -->
+        <Button Grid.Row="1" Grid.Column="1" Content="Browse" 
+                Command="{Binding BrowseCommand}" 
+                HorizontalAlignment="Right" Margin="0,0,0,0"
+                Width="80"/>
+
+        <!-- Provider Checkboxes -->
+        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+            <CheckBox Content="OneDrive" IsChecked="{Binding UseOneDrive}" Margin="0,0,20,0"/>
+            <CheckBox Content="Google Drive" IsChecked="{Binding UseGoogleDrive}"/>
+        </StackPanel>
+
+        <!-- Save Button -->
+        <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" 
+                Content="Save Settings" Command="{Binding SaveCommand}" 
+                HorizontalAlignment="Right" Width="100" Height="30"/>
+    </Grid>
+</Window>

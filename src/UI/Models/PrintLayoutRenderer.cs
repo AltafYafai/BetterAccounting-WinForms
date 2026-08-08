@@ -1,13 +1,11 @@
 using BetterAccounting.Core.Data.Models;
 using BetterAccounting.Core.Services.Reports;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Markup;
-using System.Windows.Media;
 
 namespace BetterAccounting.UI.Models
 {
@@ -38,64 +36,21 @@ namespace BetterAccounting.UI.Models
             return canvas;
         }
 
-        public static FixedDocument BuildFixedDocument(PrintTemplateLayout layout,
+        public static PrintDocumentModel BuildLayoutDocument(PrintTemplateLayout layout,
             IReadOnlyDictionary<string, string> fields, IReadOnlyList<string>? trailingLines = null)
         {
-            var document = new FixedDocument();
-            var pageSize = new Size(layout.PageWidth, layout.PageHeight);
-
-            var canvas = BuildCanvas(layout, fields);
-            canvas.Measure(pageSize);
-            canvas.Arrange(new Rect(0, 0, pageSize.Width, pageSize.Height));
-            AddPage(document, CreateFixedPage(layout, canvas));
+            var model = new PrintDocumentModel();
+            model.Pages.Add(BuildCanvas(layout, fields));
 
             if (trailingLines != null && trailingLines.Count > 0)
             {
-                const double fontSize = 11;
-                const double lineHeight = 17;
-                const double padding = 50;
-                var usableHeight = layout.PageHeight - (padding * 2);
-                var perPage = (int)Math.Max(1, Math.Floor(usableHeight / lineHeight));
-
-                for (var i = 0; i < trailingLines.Count; i += perPage)
-                {
-                    var stack = new StackPanel { Margin = new Thickness(padding) };
-                    foreach (var raw in trailingLines.Skip(i).Take(perPage))
-                    {
-                        var line = StripLegacyMarker(raw);
-                        stack.Children.Add(new TextBlock
-                        {
-                            Text = line,
-                            FontSize = fontSize,
-                            Margin = new Thickness(0, 0, 0, 3)
-                        });
-                    }
-                    AddPage(document, CreateFixedPage(layout, stack));
-                }
+                var cleaned = trailingLines.Select(StripLegacyMarker).ToList();
+                var textDoc = TemplateDocumentBuilder.Build(cleaned, layout.PageWidth, layout.PageHeight, 50);
+                foreach (var page in textDoc.Pages)
+                    model.Pages.Add(page);
             }
 
-            return document;
-        }
-
-        private static FixedPage CreateFixedPage(PrintTemplateLayout layout, UIElement content)
-        {
-            var page = new FixedPage
-            {
-                Width = layout.PageWidth,
-                Height = layout.PageHeight,
-                Background = Brushes.White
-            };
-            page.Children.Add(content);
-            FixedPage.SetLeft(content, 0);
-            FixedPage.SetTop(content, 0);
-            return page;
-        }
-
-        private static void AddPage(FixedDocument document, FixedPage page)
-        {
-            var pageContent = new PageContent();
-            ((IAddChild)pageContent).AddChild(page);
-            document.Pages.Add(pageContent);
+            return model;
         }
 
         private static string StripLegacyMarker(string line)

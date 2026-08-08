@@ -1,10 +1,7 @@
 using System;
 using System.IO;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Markup;
-using System.Globalization;
-using System.Xml;
+using Avalonia;
+using Avalonia.Styling;
 
 namespace BetterAccounting.UI.Models
 {
@@ -21,11 +18,13 @@ namespace BetterAccounting.UI.Models
         {
             if (string.IsNullOrEmpty(themeName)) themeName = "Light";
 
-            // Load theme resource dictionary based on selection
-            var dict = new ResourceDictionary();
-            dict.Source = new Uri($"/Themes/{themeName}Theme.xaml", UriKind.Relative);
-            Application.Current.Resources.MergedDictionaries.Clear();
-            Application.Current.Resources.MergedDictionaries.Add(dict);
+            var variant = themeName.Equals("Dark", StringComparison.OrdinalIgnoreCase)
+                ? ThemeVariant.Dark
+                : ThemeVariant.Light;
+
+            if (Application.Current != null)
+                Application.Current.RequestedThemeVariant = variant;
+
             CurrentTheme = themeName;
             ThemeChanged?.Invoke(themeName);
         }

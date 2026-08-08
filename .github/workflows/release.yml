@@ -1,5 +1,28 @@
 name: Create Release
 
+# Code-signing setup (SignPath.io OSS Foundation - free for open-source projects):
+#
+# 1. Apply for the free OSS tier at https://signpath.io/solutions/open-source-community
+#    (~1-2 weeks to approve). Your repo must be open source (this one is MIT).
+# 2. After approval, in the SignPath web UI:
+#    a. Connect this GitHub repo as a "trusted build system" (GitHub.com)
+#    b. Create a project and note the organization-id and project-slug.
+#       The artifact configuration must match the uploaded exe name
+#       (BetterAccounting.exe). The default (ZIP container) works with this
+#       workflow.
+#    c. Create a signing policy (e.g. "release-signing") with origin/build
+#       verification and restrict it to the 'main' branch and 'v*' tags.
+#    d. Issue an API token with submit-signing-request permission.
+# 3. In this repo: Settings -> Secrets and variables -> Actions
+#    - Secret:   SIGNPATH_API_TOKEN
+#    - Variable: SIGNPATH_ORGANIZATION_ID
+#    - Variable: SIGNPATH_PROJECT_SLUG
+#    - Variable: SIGNPATH_SIGNING_POLICY_SLUG
+#
+# Until those four are present the release still ships UNSIGNED (no failure).
+# Once they are set, the exe is Authenticode-signed by SignPath and the
+# release page shows a verified publisher instead of "Unknown publisher".
+
 on:
   push:
     tags:
@@ -7,32 +30,81 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   create_release:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-        
+
     - name: Restore dependencies
       run: dotnet restore src/UI/UI.csproj -r win-x64
-      
+
     - name: Publish Single-File Executable
       run: dotnet publish src/UI/UI.csproj --configuration Release --runtime win-x64 --output ./publish
-      
+
     - name: Inspect Publish Output
       run: dir publish
-      
+
+    - name: Upload unsigned exe for SignPath
+      id: upload-unsigned
+      uses: actions/upload-artifact@v4
+      with:
+        name: betteraccounting-unsigned
+        path: ./publish/BetterAccounting.exe
+        if-no-files-found: error
+
+    - name: Check SignPath configuration
+      id: signpath-check
+      shell: pwsh
+      env:
+        TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+        ORG_ID: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+        PROJECT: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+        POLICY: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+      run: |
+        if ($env:TOKEN -and $env:ORG_ID -and $env:PROJECT -and $env:POLICY) {
+          "enabled=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "SignPath signing enabled - release exe will be code-signed"
+        } else {
+          "enabled=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "::warning::SignPath secrets/vars missing - release will be UNSIGNED. Set SIGNPATH_API_TOKEN, SIGNPATH_ORGANIZATION_ID, SIGNPATH_PROJECT_SLUG, SIGNPATH_SIGNING_POLICY_SLUG"
+        }
+
+    - name: Sign exe with SignPath
+      if: steps.signpath-check.outputs.enabled == 'true'
+      uses: signpath/github-action-submit-signing-request@v2
+      with:
+        api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+        organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+        project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+        signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+        github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+        wait-for-completion: true
+        output-artifact-directory: ./publish
+
+    - name: Verify signature
+      if: steps.signpath-check.outputs.enabled == 'true'
+      shell: pwsh
+      run: |
+        $exe = Get-ChildItem ./publish/BetterAccounting.exe | Select-Object -First 1
+        $sig = Get-AuthenticodeSignature $exe.FullName
+        if ($sig.Status -ne "Valid") {
+          throw "Signed exe failed Authenticode verification: $($sig.Status) - $($sig.StatusMessage)"
+        }
+        Write-Host "Signed by: $($sig.SignerCertificate.Subject)"
+
     - name: Create Release Assets
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          ./publish/*.exe
+          ./publish/BetterAccounting.exe
         name: BetterAccounting ${{ github.ref_name }}
         draft: false
         prerelease: false

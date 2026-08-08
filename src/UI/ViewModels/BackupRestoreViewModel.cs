@@ -1,5 +1,6 @@
 using BetterAccounting.Core.Services.Data;
 using BetterAccounting.UI.Models;
+using BetterAccounting.UI.Services;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
@@ -82,15 +83,12 @@ namespace BetterAccounting.UI.ViewModels
             }
         }
 
-        private void BrowseForBackup()
+        private async Task BrowseForBackup()
         {
-            var dialog = new Microsoft.Win32.OpenFileDialog
+            var file = await FileDialogService.PickFileAsync("Select backup file", ("ZIP Files", new[] { "*.zip" }));
+            if (file != null)
             {
-                Filter = "ZIP Files|*.zip"
-            };
-            if (dialog.ShowDialog() == true)
-            {
-                SelectedBackup = dialog.FileName;
+                SelectedBackup = file;
                 ((RelayCommand)RestoreCommand).RaiseCanExecuteChanged();
             }
         }

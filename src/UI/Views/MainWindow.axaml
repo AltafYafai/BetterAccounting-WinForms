@@ -1,0 +1,384 @@
+<Window x:Class="BetterAccounting.UI.Views.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:primitives="using:Avalonia.Controls.Primitives"
+        Title="BetterAccounting - Dashboard"
+        Height="760" Width="1120"
+        MinHeight="640" MinWidth="960"
+        Background="{DynamicResource BackgroundBrush}"
+        FontFamily="Segoe UI" FontSize="13"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ============ Header bar ============ -->
+        <Border Grid.Row="0" Background="{DynamicResource HeaderBackgroundBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1"
+                Padding="16,10">
+            <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="36" Height="36" CornerRadius="7"
+                            Background="{DynamicResource PrimaryBrush}" VerticalAlignment="Center">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8F1;"
+                                   Foreground="White" FontSize="19"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="BetterAccounting" FontSize="15" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextBrush}" />
+                        <TextBlock Text="{Binding ActiveCompanyName}" FontSize="11"
+                                   Foreground="{DynamicResource MutedTextBrush}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
+                            HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="Company:" VerticalAlignment="Center"
+                               Foreground="{DynamicResource MutedTextBrush}" Margin="0,0,6,0" />
+                    <ComboBox Width="190" ItemsSource="{Binding Companies}"
+                              SelectedItem="{Binding SelectedCompany, Mode=TwoWay}"
+                              DisplayMemberPath="DisplayName" Margin="0,0,10,0" />
+                    <Button Classes="iconButton" Content="&#xE719;"
+                            Command="{Binding OpenCompanyManagerCommand}"
+                            ToolTip.Tip="Manage companies" />
+                    <Button Classes="iconButton" Content="&#xE72C;"
+                            Command="{Binding LoadDataCommand}" ToolTip.Tip="Refresh" />
+                    <Button Classes="iconButton" Content="&#xE770;"
+                            Command="{Binding ToggleThemeCommand}" ToolTip.Tip="Toggle theme" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ============ Menu bar ============ -->
+        <Menu Grid.Row="1" Background="{DynamicResource HeaderBackgroundBrush}">
+            <MenuItem Header="File">
+                <MenuItem Header="Refresh" Command="{Binding LoadDataCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE72C;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Backup &amp; Restore..." Command="{Binding OpenBackupCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE74E;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Exit" Click="OnExitClick">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE711;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="Actions">
+                <MenuItem Header="New Journal Entry" Command="{Binding AddEntryCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE710;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Bank Entry" Command="{Binding OpenBankEntryCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE8EF;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Debit Note" Command="{Binding OpenDebitNoteCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE70F;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Credit Note" Command="{Binding OpenCreditNoteCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE77C;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Add Customer..." Command="{Binding OpenAddCustomerCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE716;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Chart of Accounts" Command="{Binding OpenAccountsCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE910;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="Reports">
+                <MenuItem Header="Financial Reports" Command="{Binding OpenReportsCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE8F1;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Catch-Up Payments" Command="{Binding OpenCatchUpCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE8C9;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Print Formats" Command="{Binding OpenPrintFormatsCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE749;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="Settings">
+                <MenuItem Header="Company Profile..." Command="{Binding OpenCompanyProfileCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE912;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="GST Slabs" Command="{Binding OpenGstSlabsCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE713;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Sync Settings..." Command="{Binding OpenSyncSettingsCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE72C;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="Help">
+                <MenuItem Header="About" Command="{Binding OpenAboutCommand}">
+                    <MenuItem.Icon>
+                        <TextBlock Classes="menuIcon" Text="&#xE897;" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+
+        <!-- ============ Dashboard content ============ -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="20">
+            <StackPanel>
+                <TextBlock Text="Dashboard" FontSize="24" FontWeight="Bold"
+                           Foreground="{DynamicResource TextBrush}" />
+                <TextBlock Text="Financial overview of the active company"
+                           FontSize="12" Foreground="{DynamicResource MutedTextBrush}"
+                           Margin="0,2,0,16" />
+
+                <!-- Financial summary -->
+                <TextBlock Classes="sectionTitle" Text="Financial Summary" />
+                <primitives:UniformGrid Columns="3">
+                    <Border Classes="card" Margin="4">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="42" Height="42" CornerRadius="21"
+                                        Background="{DynamicResource SuccessSoftBrush}"
+                                        VerticalAlignment="Center">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A5;"
+                                               FontSize="19" Foreground="{DynamicResource SuccessBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="TOTAL ASSETS" FontSize="11"
+                                               Foreground="{DynamicResource MutedTextBrush}" />
+                                    <TextBlock Text="{Binding TotalAssets, StringFormat=C}" FontSize="22"
+                                               FontWeight="Bold" Foreground="{DynamicResource TextBrush}"
+                                               Margin="0,2,0,0" />
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Classes="card" Margin="4">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="42" Height="42" CornerRadius="21"
+                                        Background="{DynamicResource DangerSoftBrush}"
+                                        VerticalAlignment="Center">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8C9;"
+                                               FontSize="19" Foreground="{DynamicResource DangerBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="TOTAL LIABILITIES" FontSize="11"
+                                               Foreground="{DynamicResource MutedTextBrush}" />
+                                    <TextBlock Text="{Binding TotalLiabilities, StringFormat=C}" FontSize="22"
+                                               FontWeight="Bold" Foreground="{DynamicResource TextBrush}"
+                                               Margin="0,2,0,0" />
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Classes="card" Margin="4">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="42" Height="42" CornerRadius="21"
+                                        Background="{DynamicResource InfoSoftBrush}"
+                                        VerticalAlignment="Center">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE80F;"
+                                               FontSize="19" Foreground="{DynamicResource InfoBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="EQUITY" FontSize="11"
+                                               Foreground="{DynamicResource MutedTextBrush}" />
+                                    <TextBlock Text="{Binding TotalEquity, StringFormat=C}" FontSize="22"
+                                               FontWeight="Bold" Foreground="{DynamicResource TextBrush}"
+                                               Margin="0,2,0,0" />
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </primitives:UniformGrid>
+
+                <!-- Quick actions -->
+                <TextBlock Classes="sectionTitle" Text="Quick Actions" Margin="2,22,0,10" />
+                <primitives:UniformGrid Columns="4">
+                    <Button Classes="actionCard" Command="{Binding AddEntryCommand}"
+                            ToolTip.Tip="Record a journal voucher">
+                        <StackPanel>
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE710;" FontSize="24"
+                                       Foreground="{DynamicResource PrimaryBrush}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="New Entry" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center" Margin="0,8,0,0" />
+                            <TextBlock Text="Journal voucher" FontSize="11"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="actionCard" Command="{Binding OpenBankEntryCommand}"
+                            ToolTip.Tip="Record a bank transaction">
+                        <StackPanel>
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8EF;" FontSize="24"
+                                       Foreground="{DynamicResource PrimaryBrush}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Bank Entry" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center" Margin="0,8,0,0" />
+                            <TextBlock Text="Bank transaction" FontSize="11"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="actionCard" Command="{Binding OpenDebitNoteCommand}"
+                            ToolTip.Tip="Create a debit note">
+                        <StackPanel>
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE70F;" FontSize="24"
+                                       Foreground="{DynamicResource PrimaryBrush}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Debit Note" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center" Margin="0,8,0,0" />
+                            <TextBlock Text="Money out" FontSize="11"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="actionCard" Command="{Binding OpenCreditNoteCommand}"
+                            ToolTip.Tip="Create a credit note">
+                        <StackPanel>
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE77C;" FontSize="24"
+                                       Foreground="{DynamicResource PrimaryBrush}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Credit Note" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center" Margin="0,8,0,0" />
+                            <TextBlock Text="Money in" FontSize="11"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="actionCard" Command="{Binding OpenReportsCommand}"
+                            ToolTip.Tip="View financial reports">
+                        <StackPanel>
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8F1;" FontSize="24"
+                                       Foreground="{DynamicResource PrimaryBrush}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Reports" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center" Margin="0,8,0,0" />
+                            <TextBlock Text="Financial statements" FontSize="11"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="actionCard" Command="{Binding OpenAccountsCommand}"
+                            ToolTip.Tip="Manage the chart of accounts">
+                        <StackPanel>
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE910;" FontSize="24"
+                                       Foreground="{DynamicResource PrimaryBrush}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Accounts" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center" Margin="0,8,0,0" />
+                            <TextBlock Text="Chart of accounts" FontSize="11"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="actionCard" Command="{Binding OpenAddCustomerCommand}"
+                            ToolTip.Tip="Add a new customer">
+                        <StackPanel>
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE716;" FontSize="24"
+                                       Foreground="{DynamicResource PrimaryBrush}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Add Customer" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center" Margin="0,8,0,0" />
+                            <TextBlock Text="New customer" FontSize="11"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="actionCard" Command="{Binding OpenBackupCommand}"
+                            ToolTip.Tip="Backup or restore data">
+                        <StackPanel>
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE74E;" FontSize="24"
+                                       Foreground="{DynamicResource PrimaryBrush}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Backup" FontSize="13" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center" Margin="0,8,0,0" />
+                            <TextBlock Text="Protect your data" FontSize="11"
+                                       Foreground="{DynamicResource MutedTextBrush}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </primitives:UniformGrid>
+
+                <!-- Trial balance -->
+                <TextBlock Classes="sectionTitle" Text="Trial Balance" Margin="2,22,0,10" />
+                <DataGrid ItemsSource="{Binding TrialBalance}" Height="280"
+                          Margin="4,0,4,0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Account" Binding="{Binding AccountName}" Width="*" />
+                        <DataGridTextColumn Header="Debits" Binding="{Binding TotalDebits, StringFormat=C}" Width="160" />
+                        <DataGridTextColumn Header="Credits" Binding="{Binding TotalCredits, StringFormat=C}" Width="160" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ============ Status bar ============ -->
+        <Border Grid.Row="3" Background="{DynamicResource HeaderBackgroundBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"
+                Padding="14,6">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource MutedTextBrush}"
+                           FontSize="11" TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Column="1" Text="Loading..." IsVisible="{Binding IsBusy}"
+                           Foreground="{DynamicResource MutedTextBrush}" FontSize="11" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

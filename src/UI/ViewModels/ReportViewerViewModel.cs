@@ -2,6 +2,7 @@ using BetterAccounting.Core.Data.Models;
 using BetterAccounting.Core.Services.Data;
 using BetterAccounting.Core.Services.Reports;
 using BetterAccounting.UI.Models;
+using BetterAccounting.UI.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -131,14 +132,12 @@ namespace BetterAccounting.UI.ViewModels
         {
             try
             {
-                var saveDialog = new Microsoft.Win32.SaveFileDialog
-                {
-                    Filter = "Text Files|*.txt|CSV Files|*.csv"
-                };
-                if (saveDialog.ShowDialog() == true)
-                {
-                    await System.IO.File.WriteAllTextAsync(saveDialog.FileName, "Report data would be exported here");
-                }
+                var path = await FileDialogService.SaveFileAsync("Export report",
+                    "report.txt", ("Text Files", new[] { "*.txt" }), ("CSV Files", new[] { "*.csv" }));
+                if (string.IsNullOrEmpty(path))
+                    return;
+
+                await System.IO.File.WriteAllTextAsync(path, "Report data would be exported here");
             }
             catch (Exception ex)
             {
@@ -174,17 +173,18 @@ namespace BetterAccounting.UI.ViewModels
                 var reportRows = await BuildReportRowsAsync((ReportType)SelectedReportIndex);
 
                 var layout = PrintTemplateSerializer.TryDeserialize(content);
+                PrintDocumentModel document;
                 if (layout != null)
                 {
-                    var document = PrintLayoutRenderer.BuildFixedDocument(layout, fields, reportRows);
-                    var fixedPreview = new Views.DocumentPreviewWindow(document, $"Print - {reportTitle}");
-                    fixedPreview.Show();
-                    return;
+                    document = PrintLayoutRenderer.BuildLayoutDocument(layout, fields, reportRows);
+                }
+                else
+                {
+                    var lines = PrintTemplateService.Render(content, fields).Concat(reportRows).ToList();
+                    document = TemplateDocumentBuilder.Build(lines);
                 }
 
-                var lines = PrintTemplateService.Render(content, fields).Concat(reportRows).ToList();
-                var flowDocument = TemplateDocumentBuilder.Build(lines);
-                var preview = new Views.DocumentPreviewWindow(flowDocument, $"Print - {reportTitle}");
+                var preview = new Views.DocumentPreviewWindow(document, $"Print - {reportTitle}");
                 preview.Show();
             }
             catch (Exception ex)

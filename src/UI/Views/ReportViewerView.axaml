@@ -1,0 +1,46 @@
+<Window x:Class="BetterAccounting.UI.Views.ReportViewerView"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:primitives="using:Avalonia.Controls.Primitives"
+        Title="Report Viewer" Width="800" Height="600"
+        Background="{DynamicResource BackgroundBrush}"
+        FontFamily="Segoe UI" FontSize="13"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <ComboBox Width="150" ItemsSource="{Binding Reports}"
+                      SelectedIndex="{Binding SelectedReportIndex}" Margin="5"/>
+            <DatePicker Width="120" SelectedDate="{Binding FromDate}" Margin="5"/>
+            <DatePicker Width="120" SelectedDate="{Binding ToDate}" Margin="5"/>
+            <Button Content="Generate" Command="{Binding GenerateReportCommand}" Margin="5"/>
+
+            <ComboBox Width="200" ItemsSource="{Binding AccountNames}"
+                      SelectedItem="{Binding SelectedAccountName}"
+                      Margin="5"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="Export" Command="{Binding ExportCommand}" Margin="5"/>
+            <Button Content="Print" Command="{Binding PrintCommand}" Margin="5"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="2" ItemsSource="{Binding ReportData}"
+                  AutoGenerateColumns="True" IsReadOnly="True" Margin="0,0,0,10"/>
+
+        <StatusBar Grid.Row="3">
+            <StatusBarItem>
+                <TextBlock Text="{Binding SelectedReportIndex}"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="OrangeRed" TextWrapping="Wrap" FontWeight="Bold"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

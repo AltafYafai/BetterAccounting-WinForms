@@ -1,12 +1,14 @@
 using BetterAccounting.Core.Data.Models;
 using BetterAccounting.UI.Models;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Layout;
+using Avalonia.Media;
 using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
-using System.Windows.Media;
+using System.ComponentModel;
 
 namespace BetterAccounting.UI.Controls
 {
@@ -23,7 +25,7 @@ namespace BetterAccounting.UI.Controls
 
         private Grid _root = new();
         private Grid _shapeHost = new();
-        private FrameworkElement _shape;
+        private Control _shape;
         private Thumb _moveThumb;
         private Border _selectionBorder = new();
         private readonly List<Thumb> _resizeThumbs = new();
@@ -45,7 +47,6 @@ namespace BetterAccounting.UI.Controls
             HorizontalContentAlignment = HorizontalAlignment.Stretch;
             VerticalContentAlignment = VerticalAlignment.Stretch;
             Focusable = false;
-            FocusVisualStyle = null;
 
             _moveThumb = new Thumb
             {
@@ -62,7 +63,7 @@ namespace BetterAccounting.UI.Controls
                 BorderBrush = new SolidColorBrush(Color.FromArgb(200, 51, 122, 183)),
                 BorderThickness = new Thickness(1.5),
                 IsHitTestVisible = false,
-                Visibility = Visibility.Collapsed
+                IsVisible = false
             };
 
             _root = new Grid();
@@ -75,7 +76,7 @@ namespace BetterAccounting.UI.Controls
             BuildShape();
             BuildResizeHandles();
 
-            PreviewMouseLeftButtonDown += (s, e) => Select();
+            AddHandler(PointerPressedEvent, (s, e) => Select(), RoutingStrategies.Tunnel);
 
             _item.PropertyChanged += OnItemPropertyChanged;
             UpdatePositionAndSize();
@@ -187,7 +188,7 @@ namespace BetterAccounting.UI.Controls
             _item.Height = h;
         }
 
-        private void OnItemPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void OnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
@@ -236,9 +237,9 @@ namespace BetterAccounting.UI.Controls
         public void RefreshSelectionVisual()
         {
             _isSelected = _designerCanvas.SelectedItem == _item;
-            _selectionBorder.Visibility = _isSelected ? Visibility.Visible : Visibility.Collapsed;
+            _selectionBorder.IsVisible = _isSelected;
             foreach (var thumb in _resizeThumbs)
-                thumb.Visibility = _isSelected && _item.Rotation == 0 ? Visibility.Visible : Visibility.Collapsed;
+                thumb.IsVisible = _isSelected && _item.Rotation == 0;
             _moveThumb.Cursor = _isSelected ? Cursors.SizeAll : Cursors.Hand;
             RefreshZIndex();
         }

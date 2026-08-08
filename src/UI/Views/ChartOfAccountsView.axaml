@@ -1,0 +1,31 @@
+<Window x:Class="BetterAccounting.UI.Views.ChartOfAccountsView"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Chart of Accounts" Height="500" Width="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+            <Button Content="Add" Click="AddAccount_Click" Padding="10,4"/>
+            <Button Content="Edit" Click="EditAccount_Click" Padding="10,4" Margin="5,0"/>
+            <Button Content="Delete" Click="DeleteAccount_Click" Padding="10,4" Margin="5,0"/>
+        </StackPanel>
+
+        <!-- Accounts DataGrid -->
+        <DataGrid x:Name="AccountsGrid" Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                <DataGridTextColumn Header="Group" Binding="{Binding Group}" Width="120"/>
+                <DataGridTextColumn Header="Opening Balance" Binding="{Binding OpeningBalance, StringFormat=C}" Width="120"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

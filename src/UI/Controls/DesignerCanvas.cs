@@ -1,10 +1,10 @@
 using BetterAccounting.Core.Data.Models;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Media;
 using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 
 namespace BetterAccounting.UI.Controls
 {
@@ -22,7 +22,7 @@ namespace BetterAccounting.UI.Controls
         {
             Background = Brushes.White;
             Focusable = true;
-            PreviewMouseLeftButtonDown += OnCanvasMouseDown;
+            AddHandler(PointerPressedEvent, OnCanvasPointerPressed, RoutingStrategies.Tunnel);
         }
 
         public void SetItems(IEnumerable<PrintTemplateItem> items)
@@ -81,7 +81,7 @@ namespace BetterAccounting.UI.Controls
             }
         }
 
-        private void OnCanvasMouseDown(object sender, MouseButtonEventArgs e)
+        private void OnCanvasPointerPressed(object sender, PointerPressedEventArgs e)
         {
             Focus();
             if (e.OriginalSource is DesignerCanvas)

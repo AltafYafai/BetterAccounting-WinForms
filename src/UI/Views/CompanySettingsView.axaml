@@ -1,0 +1,56 @@
+<Window x:Class="BetterAccounting.UI.Views.CompanySettingsView"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:primitives="using:Avalonia.Controls.Primitives"
+        Title="Company Profile" Height="620" Width="640"
+        WindowStartupLocation="CenterScreen">
+    <DockPanel Margin="20">
+        <TextBlock DockPanel.Dock="Bottom" Text="{Binding StatusMessage}" Foreground="OrangeRed" TextWrapping="Wrap" Margin="0,8,0,0"/>
+        <Button DockPanel.Dock="Bottom" Content="Save" Command="{Binding SaveCommand}"
+                HorizontalAlignment="Right" Width="100" Height="30" Margin="0,15,0,0"/>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="130"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Content="Company Name:" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding CompanyName}" Margin="5,3" VerticalAlignment="Center"/>
+
+            <Label Grid.Row="1" Grid.Column="0" Content="GSTIN:" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Gstin}" Margin="5,3" VerticalAlignment="Center"/>
+
+            <Label Grid.Row="2" Grid.Column="0" Content="Address:" VerticalAlignment="Top" Margin="0,5,0,0"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Address}" TextWrapping="Wrap" AcceptsReturn="True" Height="70" Margin="5,3" VerticalScrollBarVisibility="Auto"/>
+
+            <Label Grid.Row="3" Grid.Column="0" Content="City:" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding City}" Margin="5,3" VerticalAlignment="Center"/>
+
+            <Label Grid.Row="4" Grid.Column="0" Content="State:" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding State}" Margin="5,3" VerticalAlignment="Center"/>
+
+            <Label Grid.Row="5" Grid.Column="0" Content="PIN Code:" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding PinCode}" Margin="5,3" VerticalAlignment="Center"/>
+
+            <Label Grid.Row="6" Grid.Column="0" Content="Phone:" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding Phone}" Margin="5,3" VerticalAlignment="Center"/>
+
+            <Label Grid.Row="7" Grid.Column="0" Content="Email:" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding Email}" Margin="5,3" VerticalAlignment="Center"/>
+
+            <Label Grid.Row="8" Grid.Column="0" Content="Contact Person:" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="8" Grid.Column="1" Text="{Binding ContactPerson}" Margin="5,3" VerticalAlignment="Center"/>
+        </Grid>
+    </DockPanel>
+</Window>

@@ -1,8 +1,8 @@
 using System;
 using System.Reflection;
 using System.Text;
-using System.Windows;
-using BetterAccounting.UI.Views;
+using Avalonia;
+using BetterAccounting.UI.Services;
 
 namespace BetterAccounting.UI.Models
 {
@@ -23,8 +23,9 @@ namespace BetterAccounting.UI.Models
             ErrorLog.Write(operation, ex);
             if (Application.Current != null)
             {
-                var dialog = new ErrorDialog(operation, ex);
-                dialog.ShowDialog();
+                var message = $"{operation} failed.\n\n{Describe(ex)}";
+                _ = MessageBoxService.ShowAsync(message, "Error", MessageBoxButtons.OK, MessageBoxImage.Error,
+                    AppServices.GetMainWindow());
             }
         }
 

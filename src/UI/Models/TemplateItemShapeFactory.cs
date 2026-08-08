@@ -1,16 +1,16 @@
 using BetterAccounting.Core.Data.Models;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia.Layout;
+using Avalonia.Media;
 using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace BetterAccounting.UI.Models
 {
     public static class ColorBrushConverter
     {
-        public static Brush? ToBrush(string? value)
+        public static IBrush? ToBrush(string? value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 return null;
@@ -18,13 +18,42 @@ namespace BetterAccounting.UI.Models
                 return Brushes.Transparent;
             try
             {
-                return new SolidColorBrush((Color)ColorConverter.ConvertFromString(value));
+                if (value.StartsWith('#'))
+                    return new SolidColorBrush(Color.Parse(value));
+                var named = ParseNamedColor(value);
+                return new SolidColorBrush(named ?? Color.Parse(value));
             }
             catch (Exception ex)
             {
                 ErrorLog.Write($"Parse color '{value}'", ex);
                 return null;
             }
+        }
+
+        private static Color? ParseNamedColor(string name)
+        {
+            return name.ToLowerInvariant() switch
+            {
+                "black" => Colors.Black,
+                "white" => Colors.White,
+                "red" => Colors.Red,
+                "darkred" => Colors.DarkRed,
+                "orange" => Colors.Orange,
+                "yellow" => Colors.Yellow,
+                "green" => Colors.Green,
+                "darkgreen" => Colors.DarkGreen,
+                "blue" => Colors.Blue,
+                "darkblue" => Colors.DarkBlue,
+                "purple" => Colors.Purple,
+                "magenta" => Colors.Magenta,
+                "cyan" => Colors.Cyan,
+                "brown" => Colors.Brown,
+                "gray" => Colors.Gray,
+                "grey" => Colors.Gray,
+                "darkgray" => Colors.DarkGray,
+                "lightgray" => Colors.LightGray,
+                _ => null
+            };
         }
     }
 
@@ -41,9 +70,9 @@ namespace BetterAccounting.UI.Models
             return (item.X, item.Y, item.Width, item.Height);
         }
 
-        public static FrameworkElement Create(PrintTemplateItem item, Func<string, string>? substitute = null)
+        public static Control Create(PrintTemplateItem item, Func<string, string>? substitute = null)
         {
-            FrameworkElement element;
+            Control element;
             switch (item.Kind)
             {
                 case TemplateItemKind.Text:
@@ -72,18 +101,15 @@ namespace BetterAccounting.UI.Models
                 }
                 case TemplateItemKind.Line:
                 {
-                    var x1 = item.Width < 0 ? item.Width : 0;
-                    var y1 = item.Height < 0 ? item.Height : 0;
+                    var start = new Point(item.Width < 0 ? item.Width : 0, item.Height < 0 ? item.Height : 0);
+                    var end = new Point(item.Width < 0 ? 0 : item.Width, item.Height < 0 ? 0 : item.Height);
                     element = new Line
                     {
-                        X1 = x1,
-                        Y1 = y1,
-                        X2 = item.Width < 0 ? 0 : item.Width,
-                        Y2 = item.Height < 0 ? 0 : item.Height,
+                        StartPoint = start,
+                        EndPoint = end,
                         Stroke = ColorBrushConverter.ToBrush(item.BorderColor) ?? Brushes.Black,
                         StrokeThickness = item.BorderThickness <= 0 ? 1 : item.BorderThickness,
-                        StrokeStartLineCap = PenLineCap.Round,
-                        StrokeEndLineCap = PenLineCap.Round
+                        StrokeLineCap = PenLineCap.Round
                     };
                     break;
                 }
@@ -93,8 +119,7 @@ namespace BetterAccounting.UI.Models
                     {
                         Fill = ColorBrushConverter.ToBrush(item.FillColor) ?? Brushes.Transparent,
                         Stroke = ColorBrushConverter.ToBrush(item.BorderColor) ?? Brushes.Black,
-                        StrokeThickness = item.BorderThickness <= 0 ? 1 : item.BorderThickness,
-                        SnapsToDevicePixels = true
+                        StrokeThickness = item.BorderThickness <= 0 ? 1 : item.BorderThickness
                     };
                     break;
                 }
@@ -104,8 +129,7 @@ namespace BetterAccounting.UI.Models
                     {
                         Fill = ColorBrushConverter.ToBrush(item.FillColor) ?? Brushes.Transparent,
                         Stroke = ColorBrushConverter.ToBrush(item.BorderColor) ?? Brushes.Black,
-                        StrokeThickness = item.BorderThickness <= 0 ? 1 : item.BorderThickness,
-                        SnapsToDevicePixels = true
+                        StrokeThickness = item.BorderThickness <= 0 ? 1 : item.BorderThickness
                     };
                     break;
                 }
@@ -114,7 +138,7 @@ namespace BetterAccounting.UI.Models
                     break;
             }
 
-            element.RenderTransformOrigin = new Point(0.5, 0.5);
+            element.RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative);
             element.RenderTransform = new RotateTransform(item.Rotation);
             element.Opacity = item.Opacity;
             return element;

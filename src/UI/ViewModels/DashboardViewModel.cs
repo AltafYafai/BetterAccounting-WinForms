@@ -2,11 +2,12 @@ using BetterAccounting.Core.Data.Models;
 using BetterAccounting.Core.Services.Data;
 using BetterAccounting.Core.Services.Reports;
 using BetterAccounting.UI.Models;
+using BetterAccounting.UI.Services;
+using Avalonia.Controls;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 
 namespace BetterAccounting.UI.ViewModels
@@ -207,7 +208,7 @@ namespace BetterAccounting.UI.ViewModels
         private void OpenAbout()
         {
             var window = new Views.AboutWindow();
-            window.ShowDialog();
+            ShowDialog(window);
         }
 
         private void OpenPrintFormats()
@@ -219,7 +220,7 @@ namespace BetterAccounting.UI.ViewModels
         private async Task OpenCompanyManagerAsync()
         {
             var window = new Views.CompanyManagerView();
-            window.ShowDialog();
+            await ShowDialogAsync(window);
 
             // The manager may have added/switched/removed companies while it was open,
             // so resync the dashboard's context and totals with the (possibly new) active company.
@@ -316,5 +317,25 @@ namespace BetterAccounting.UI.ViewModels
         private bool _isSwitching;
         private bool _isBusy;
         private string _statusMessage = "";
+
+        private static Window? DialogOwner => AppServices.GetMainWindow();
+
+        private static void ShowDialog(Window dialog)
+        {
+            var owner = DialogOwner;
+            if (owner != null)
+                dialog.ShowDialog(owner);
+            else
+                dialog.Show();
+        }
+
+        private static async Task ShowDialogAsync(Window dialog)
+        {
+            var owner = DialogOwner;
+            if (owner != null)
+                await dialog.ShowDialog(owner);
+            else
+                dialog.Show();
+        }
     }
 }

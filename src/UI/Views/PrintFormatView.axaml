@@ -1,0 +1,218 @@
+<Window x:Class="BetterAccounting.UI.Views.PrintFormatView"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:BetterAccounting.UI.Controls"
+        xmlns:models="using:BetterAccounting.UI.Models"
+        Title="Print Format Designer" Height="780" Width="1320">
+    <Window.Resources>
+        <models:BrushConverter x:Key="BrushConverter"/>
+        <DataTemplate x:Key="ColorTemplate">
+            <StackPanel Orientation="Horizontal">
+                <Border Width="12" Height="12" Background="{Binding Converter={StaticResource BrushConverter}}"
+                        BorderBrush="#888888" BorderThickness="1" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding}" Margin="6,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top bar -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+            <Label Content="Document Type:" VerticalAlignment="Center"/>
+            <ComboBox Width="100" ItemsSource="{Binding DocumentTypes}" SelectedItem="{Binding SelectedDocumentType, Mode=TwoWay}"
+                      Margin="0,0,10,0" VerticalAlignment="Center"/>
+            <Label Content="Format Name:" VerticalAlignment="Center"/>
+            <TextBox Width="160" Text="{Binding TemplateName, Mode=TwoWay}"
+                     VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <Button Content="New" Command="{Binding NewCommand}" Padding="9,3" Margin="0,0,4,0" VerticalAlignment="Center"/>
+            <Button Content="Save" Command="{Binding SaveCommand}" Padding="9,3" Margin="0,0,4,0" VerticalAlignment="Center"/>
+            <Button Content="Set Default" Command="{Binding SetDefaultCommand}" Padding="9,3" Margin="0,0,4,0" VerticalAlignment="Center"/>
+            <Button Content="Delete" Command="{Binding DeleteTemplateCommand}" Padding="9,3" Margin="0,0,14,0" VerticalAlignment="Center"/>
+
+            <Label Content="Page:" VerticalAlignment="Center"/>
+            <ComboBox Width="70" ItemsSource="{Binding PageSizes}" SelectedItem="{Binding SelectedPageSize, Mode=TwoWay}"
+                      Margin="0,0,6,0" VerticalAlignment="Center"/>
+            <CheckBox Content="Landscape" IsChecked="{Binding IsLandscape, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+            <Label Content="Zoom:" VerticalAlignment="Center"/>
+            <Slider Width="120" Minimum="25" Maximum="300" Value="{Binding Zoom, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+            <TextBlock Text="{Binding Zoom, StringFormat={}{0:0}%}" VerticalAlignment="Center" Width="40"/>
+        </StackPanel>
+
+        <!-- Main -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="290"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Template list -->
+            <DockPanel Grid.Column="0" Margin="0,0,8,0">
+                <TextBlock DockPanel.Dock="Top" Text="Saved Formats" FontWeight="Bold" Margin="0,0,0,6"/>
+                <ListBox ItemsSource="{Binding Templates}" SelectedItem="{Binding SelectedTemplate, Mode=TwoWay}"
+                         DisplayMemberPath="Name"/>
+            </DockPanel>
+
+            <!-- Designer -->
+            <DockPanel Grid.Column="1" Margin="0,0,8,0">
+                <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
+                    <Button Content="Text" Command="{Binding AddTextCommand}" Padding="8,2" ToolTip.Tip="Add text box"/>
+                    <Button Content="Line" Command="{Binding AddLineCommand}" Padding="8,2" ToolTip.Tip="Add line"/>
+                    <Button Content="Rectangle" Command="{Binding AddRectangleCommand}" Padding="8,2" ToolTip.Tip="Add rectangle"/>
+                    <Button Content="Ellipse" Command="{Binding AddEllipseCommand}" Padding="8,2" ToolTip.Tip="Add ellipse"/>
+                    <Button Content="Duplicate" Command="{Binding DuplicateItemCommand}" Padding="8,2" Margin="10,0,0,0"/>
+                    <Button Content="Delete Item" Command="{Binding DeleteItemCommand}" Padding="8,2"/>
+                    <Button Content="Front" Command="{Binding BringToFrontCommand}" Padding="8,2" ToolTip.Tip="Bring selected item to front" Margin="10,0,0,0"/>
+                    <Button Content="Back" Command="{Binding SendToBackCommand}" Padding="8,2" ToolTip.Tip="Send selected item to back"/>
+                    <Label Content="Align:" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    <Button Content="L" Command="{Binding AlignLeftCommand}" Padding="8,2" ToolTip.Tip="Align left"/>
+                    <Button Content="C" Command="{Binding AlignCenterHCommand}" Padding="8,2" ToolTip.Tip="Align center horizontally"/>
+                    <Button Content="R" Command="{Binding AlignRightCommand}" Padding="8,2" ToolTip.Tip="Align right"/>
+                    <Button Content="T" Command="{Binding AlignTopCommand}" Padding="8,2" ToolTip.Tip="Align top"/>
+                    <Button Content="M" Command="{Binding AlignMiddleCommand}" Padding="8,2" ToolTip.Tip="Align middle vertically"/>
+                    <Button Content="B" Command="{Binding AlignBottomCommand}" Padding="8,2" ToolTip.Tip="Align bottom"/>
+                </WrapPanel>
+
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <Grid Margin="30" x:Name="CanvasZoomHost" HorizontalAlignment="Left" VerticalAlignment="Top"
+                          RenderTransformOrigin="0,0">
+                        <Border BorderBrush="#999999" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                BoxShadow="0 3 16 0 #33000000">
+                            <controls:DesignerCanvas x:Name="Designer"
+                                                     Width="{Binding PageWidth}"
+                                                     Height="{Binding PageHeight}"/>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+            </DockPanel>
+
+            <!-- Properties -->
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="4">
+                    <GroupBox Header="General" Padding="6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="X:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,2"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding SelectedItem.X, Mode=TwoWay}" Margin="0,2"/>
+                            <TextBlock Text="Y:" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Margin="4,2,0,2"/>
+                            <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding SelectedItem.Y, Mode=TwoWay}" Margin="0,2"/>
+
+                            <TextBlock Text="Width:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,2"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding SelectedItem.Width, Mode=TwoWay}" Margin="0,2"/>
+                            <TextBlock Text="Height:" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Margin="4,2,0,2"/>
+                            <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding SelectedItem.Height, Mode=TwoWay}" Margin="0,2"/>
+
+                            <TextBlock Text="Rotation:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="0,4,0,2"/>
+                            <Slider Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Minimum="0" Maximum="360"
+                                    Value="{Binding SelectedItem.Rotation, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,2,4,2"/>
+                            <TextBlock Grid.Row="2" Grid.Column="3" VerticalAlignment="Center"
+                                       Text="{Binding SelectedItem.Rotation, StringFormat={}{0:0}°}"/>
+
+                            <TextBlock Text="Opacity:" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Margin="0,2"/>
+                            <Slider Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Minimum="0" Maximum="1"
+                                    Value="{Binding SelectedItem.Opacity, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,2,4,2"/>
+                            <TextBlock Grid.Row="3" Grid.Column="3" VerticalAlignment="Center"
+                                       Text="{Binding SelectedItem.Opacity, StringFormat={}{0:0.00}}"/>
+                        </Grid>
+                    </GroupBox>
+
+                    <GroupBox Header="Text" Padding="6" Margin="0,6,0,0"
+                              IsVisible="{Binding IsTextItemSelected}">
+                        <StackPanel>
+                            <TextBlock Text="Text (use {tokens} for fields):" Margin="0,2"/>
+                            <TextBox Text="{Binding SelectedItem.Text, Mode=TwoWay}"
+                                     AcceptsReturn="True" Height="52" TextWrapping="Wrap" Margin="0,2"/>
+
+                            <DockPanel Margin="0,4,0,2">
+                                <Button DockPanel.Dock="Right" Content="Insert" Padding="8,1"
+                                        Command="{Binding InsertTokenCommand}"
+                                        CommandParameter="{Binding SelectedItem, ElementName=TokenCombo}"/>
+                                <TextBlock Text="Insert field:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <ComboBox ItemsSource="{Binding AvailableTokens}" x:Name="TokenCombo" Height="24"/>
+                            </DockPanel>
+
+                            <DockPanel Margin="0,4,0,2">
+                                <TextBlock Text="Font:" Width="56" VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding FontFamilies}"
+                                          SelectedItem="{Binding SelectedItem.FontFamily, Mode=TwoWay}" Height="24"/>
+                            </DockPanel>
+
+                            <DockPanel Margin="0,4,0,2">
+                                <TextBlock Text="Size:" Width="56" VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding SelectedItem.FontSize, Mode=TwoWay}" Width="60" Height="22"/>
+                                <StackPanel Orientation="Horizontal" Margin="8,0,0,0">
+                                    <CheckBox Content="B" IsChecked="{Binding SelectedItem.Bold, Mode=TwoWay}" ToolTip.Tip="Bold" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <CheckBox Content="I" IsChecked="{Binding SelectedItem.Italic, Mode=TwoWay}" ToolTip.Tip="Italic" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <CheckBox Content="U" IsChecked="{Binding SelectedItem.Underline, Mode=TwoWay}" ToolTip.Tip="Underline" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </DockPanel>
+
+                            <DockPanel Margin="0,4,0,2">
+                                <TextBlock Text="Color:" Width="56" VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding ColorChoices}" ItemTemplate="{StaticResource ColorTemplate}"
+                                          SelectedItem="{Binding SelectedItem.TextColor, Mode=TwoWay}" Height="24"/>
+                            </DockPanel>
+
+                            <DockPanel Margin="0,4,0,2">
+                                <TextBlock Text="Align H:" Width="56" VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding TextAlignments}"
+                                          SelectedItem="{Binding SelectedItem.TextAlignment, Mode=TwoWay}" Height="24"/>
+                            </DockPanel>
+
+                            <DockPanel Margin="0,4,0,2">
+                                <TextBlock Text="Align V:" Width="56" VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding VerticalAlignments}"
+                                          SelectedItem="{Binding SelectedItem.VerticalAlignment, Mode=TwoWay}" Height="24"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Shape / Border" Padding="6" Margin="0,6,0,0"
+                              IsVisible="{Binding IsShapeItemSelected}">
+                        <StackPanel>
+                            <DockPanel Margin="0,2">
+                                <TextBlock Text="Fill:" Width="56" VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding ColorChoices}" ItemTemplate="{StaticResource ColorTemplate}"
+                                          SelectedItem="{Binding SelectedItem.FillColor, Mode=TwoWay}" Height="24"/>
+                            </DockPanel>
+                            <DockPanel Margin="0,4,0,2">
+                                <TextBlock Text="Border:" Width="56" VerticalAlignment="Center"/>
+                                <ComboBox ItemsSource="{Binding ColorChoices}" ItemTemplate="{StaticResource ColorTemplate}"
+                                          SelectedItem="{Binding SelectedItem.BorderColor, Mode=TwoWay}" Height="24"/>
+                            </DockPanel>
+                            <DockPanel Margin="0,4,0,2">
+                                <TextBlock Text="Thickness:" Width="56" VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding SelectedItem.BorderThickness, Mode=TwoWay}" Width="60" Height="22"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Status -->
+        <Border Grid.Row="2" Background="{DynamicResource HeaderBackgroundBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0"
+                Padding="10,5" Margin="0,6,0,0">
+            <TextBlock Text="{Binding StatusMessage}"/>
+        </Border>
+    </Grid>
+</Window>

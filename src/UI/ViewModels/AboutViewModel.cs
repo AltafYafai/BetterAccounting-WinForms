@@ -221,7 +221,7 @@ namespace BetterAccounting.UI.ViewModels
             }
 
             StatusMessage = "Applying update — this app will close and restart with the new version.";
-            System.Windows.Application.Current?.Shutdown();
+            Avalonia.Application.Current?.Shutdown();
         }
 
         private void ShowDownloadedFile()

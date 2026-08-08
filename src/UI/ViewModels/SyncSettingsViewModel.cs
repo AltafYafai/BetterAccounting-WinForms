@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Windows.Input;
 using BetterAccounting.UI.Models;
+using BetterAccounting.UI.Services;
 
 namespace BetterAccounting.UI.ViewModels
 {
@@ -89,25 +90,11 @@ namespace BetterAccounting.UI.ViewModels
             File.WriteAllText(configPath, content);
         }
 
-        private void BrowseForFolder()
+        private async void BrowseForFolder()
         {
-            var dialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Title = "Select Sync Folder Path",
-                CheckFileExists = false,
-                CheckPathExists = true,
-                FileName = "Folder Selection"
-            };
-            
-            if (dialog.ShowDialog() == true)
-            {
-                // OpenFileDialog returns a file path, we extract the directory
-                var dir = System.IO.Path.GetDirectoryName(dialog.FileName);
-                if (!string.IsNullOrEmpty(dir))
-                {
-                    SyncFolderPath = dir;
-                }
-            }
+            var folder = await FileDialogService.PickFolderAsync("Select Sync Folder Path");
+            if (!string.IsNullOrEmpty(folder))
+                SyncFolderPath = folder;
         }
 
         private string GetConfigPath()
