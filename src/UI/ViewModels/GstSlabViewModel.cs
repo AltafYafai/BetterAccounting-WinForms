@@ -16,6 +16,7 @@ namespace BetterAccounting.UI.ViewModels
         private GstSlab? _selectedSlab;
         private string _slabName = string.Empty;
         private decimal _slabRate;
+        private string _statusMessage = string.Empty;
 
         public GstSlabViewModel()
         {
@@ -33,9 +34,16 @@ namespace BetterAccounting.UI.ViewModels
 
         private async Task LoadAsync()
         {
-            await _repository.SeedDefaultsAsync();
-            var list = await _repository.GetAsync();
-            Slabs = new ObservableCollection<GstSlab>(list);
+            try
+            {
+                await _repository.SeedDefaultsAsync();
+                var list = await _repository.GetAsync();
+                Slabs = new ObservableCollection<GstSlab>(list);
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message("Load GST slabs", ex);
+            }
         }
 
         private async Task AddAsync()
@@ -43,11 +51,19 @@ namespace BetterAccounting.UI.ViewModels
             if (string.IsNullOrWhiteSpace(SlabName))
                 return;
 
-            var slab = new GstSlab { Name = SlabName, Rate = SlabRate };
-            await _repository.AddAsync(slab);
-            Slabs.Add(slab);
-            SlabName = string.Empty;
-            SlabRate = 0m;
+            try
+            {
+                var slab = new GstSlab { Name = SlabName, Rate = SlabRate };
+                await _repository.AddAsync(slab);
+                Slabs.Add(slab);
+                SlabName = string.Empty;
+                SlabRate = 0m;
+                StatusMessage = $"GST slab '{slab.Name}' added.";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message($"Add GST slab '{SlabName}'", ex);
+            }
         }
 
         private async Task DeleteAsync()
@@ -55,9 +71,18 @@ namespace BetterAccounting.UI.ViewModels
             if (SelectedSlab is null)
                 return;
 
-            await _repository.DeleteAsync(SelectedSlab.Id);
-            Slabs.Remove(SelectedSlab);
-            SelectedSlab = null;
+            try
+            {
+                await _repository.DeleteAsync(SelectedSlab.Id);
+                var name = SelectedSlab.Name;
+                Slabs.Remove(SelectedSlab);
+                SelectedSlab = null;
+                StatusMessage = $"GST slab '{name}' deleted.";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message($"Delete GST slab '{SelectedSlab?.Name}'", ex);
+            }
         }
 
         public ObservableCollection<GstSlab> Slabs { get => _slabs; set => SetProperty(ref _slabs, value); }
@@ -74,6 +99,12 @@ namespace BetterAccounting.UI.ViewModels
 
         public string SlabName { get => _slabName; set => SetProperty(ref _slabName, value); }
         public decimal SlabRate { get => _slabRate; set => SetProperty(ref _slabRate, value); }
+
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set => SetProperty(ref _statusMessage, value);
+        }
 
         public ICommand AddCommand { get; }
         public RelayCommand DeleteCommand { get; }

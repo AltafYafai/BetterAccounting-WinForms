@@ -37,6 +37,7 @@ namespace BetterAccounting.UI.ViewModels
         private ObservableCollection<string> _accountNames;
         private ObservableCollection<ProfitAndLossRecord> _pnlData;
         private object _reportData;
+        private string _errorMessage = string.Empty;
 
         public ReportViewerViewModel()
         {
@@ -69,98 +70,127 @@ namespace BetterAccounting.UI.ViewModels
 
         private async Task LoadAccountsAsync()
         {
-            var names = await _accountRepository.GetAllAsync();
-            AccountNames = new ObservableCollection<string>(names.Select(a => a.Name));
+            try
+            {
+                var names = await _accountRepository.GetAllAsync();
+                AccountNames = new ObservableCollection<string>(names.Select(a => a.Name));
+            }
+            catch (Exception ex)
+            {
+                ErrorReporter.Log("Load account list for report viewer", ex);
+            }
         }
 
         private async Task GenerateReportAsync()
         {
-            ReportType reportType = (ReportType)SelectedReportIndex;
-            
-            switch (reportType)
+            try
             {
-                case ReportType.TrialBalance:
-                    var records = await _trialBalanceService.GenerateTrialBalanceAsync(FromDate, ToDate);
-                    ReportData = new ObservableCollection<dynamic>(records.Select(r => new {
-                        AccountName = r.AccountName,
-                        TotalDebits = r.TotalDebits,
-                        TotalCredits = r.TotalCredits
-                    }));
-                    break;
-                case ReportType.ProfitAndLoss:
-                    var pnl = await _profitAndLossService.GenerateAsync(FromDate, ToDate);
-                    PnlData = new ObservableCollection<ProfitAndLossRecord>(pnl.Incomes.Concat(pnl.Expenses));
-                    ReportData = PnlData;
-                    break;
-                case ReportType.Ledger:
-                    if (!string.IsNullOrEmpty(SelectedAccountName))
-                    {
-                        var ledger = await _ledgerReportService.GenerateForAccountAsync(SelectedAccountName, FromDate, ToDate);
-                        ReportData = ledger.Entries;
-                    }
-                    break;
-                case ReportType.BalanceSheet:
-                    var (assets, liabilities, equity) = await _financialStatementService.GetBalanceSheetTotalsAsync(ToDate);
-                    ReportData = new[] {
-                        new { Category = "Assets", Amount = assets },
-                        new { Category = "Liabilities", Amount = liabilities },
-                        new { Category = "Equity", Amount = equity }
-                    };
-                    break;
+                ReportType reportType = (ReportType)SelectedReportIndex;
+
+                switch (reportType)
+                {
+                    case ReportType.TrialBalance:
+                        var records = await _trialBalanceService.GenerateTrialBalanceAsync(FromDate, ToDate);
+                        ReportData = new ObservableCollection<dynamic>(records.Select(r => new {
+                            AccountName = r.AccountName,
+                            TotalDebits = r.TotalDebits,
+                            TotalCredits = r.TotalCredits
+                        }));
+                        break;
+                    case ReportType.ProfitAndLoss:
+                        var pnl = await _profitAndLossService.GenerateAsync(FromDate, ToDate);
+                        PnlData = new ObservableCollection<ProfitAndLossRecord>(pnl.Incomes.Concat(pnl.Expenses));
+                        ReportData = PnlData;
+                        break;
+                    case ReportType.Ledger:
+                        if (!string.IsNullOrEmpty(SelectedAccountName))
+                        {
+                            var ledger = await _ledgerReportService.GenerateForAccountAsync(SelectedAccountName, FromDate, ToDate);
+                            ReportData = ledger.Entries;
+                        }
+                        break;
+                    case ReportType.BalanceSheet:
+                        var (assets, liabilities, equity) = await _financialStatementService.GetBalanceSheetTotalsAsync(ToDate);
+                        ReportData = new[] {
+                            new { Category = "Assets", Amount = assets },
+                            new { Category = "Liabilities", Amount = liabilities },
+                            new { Category = "Equity", Amount = equity }
+                        };
+                        break;
+                }
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ErrorReporter.Message($"Generate '{Reports[SelectedReportIndex]}' report", ex);
             }
             ((RelayCommand)ExportCommand).RaiseCanExecuteChanged();
         }
 
         private async Task ExportAsync()
         {
-            var saveDialog = new Microsoft.Win32.SaveFileDialog
+            try
             {
-                Filter = "Text Files|*.txt|CSV Files|*.csv"
-            };
-            if (saveDialog.ShowDialog() == true)
+                var saveDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "Text Files|*.txt|CSV Files|*.csv"
+                };
+                if (saveDialog.ShowDialog() == true)
+                {
+                    await System.IO.File.WriteAllTextAsync(saveDialog.FileName, "Report data would be exported here");
+                }
+            }
+            catch (Exception ex)
             {
-                await System.IO.File.WriteAllTextAsync(saveDialog.FileName, "Report data would be exported here");
+                ErrorMessage = ErrorReporter.Message($"Export '{Reports[SelectedReportIndex]}' report", ex);
             }
         }
 
         private async Task PrintAsync()
         {
-            var reportTitle = SelectedReportIndex < Reports.Count ? Reports[SelectedReportIndex] : "Report";
-            var company = await LoadCompanyAsync();
-            var template = await _printTemplateService.GetDefaultAsync(DocumentType.Report);
-            var content = template?.Content ?? PrintTemplateService.GetDefaultContent(DocumentType.Report);
-
-            var fields = new Dictionary<string, string>
+            try
             {
-                { "CompanyName", company?.CompanyName ?? "" },
-                { "Gstin", company?.Gstin ?? "" },
-                { "Address", company?.Address ?? "" },
-                { "City", company?.City ?? "" },
-                { "State", company?.State ?? "" },
-                { "PinCode", company?.PinCode ?? "" },
-                { "Phone", company?.Phone ?? "" },
-                { "Email", company?.Email ?? "" },
-                { "ReportTitle", reportTitle },
-                { "FromDate", FromDate.ToShortDateString() },
-                { "ToDate", ToDate.ToShortDateString() },
-                { "CreatedDate", DateTime.Now.ToString("g") }
-            };
+                var reportTitle = SelectedReportIndex < Reports.Count ? Reports[SelectedReportIndex] : "Report";
+                var company = await LoadCompanyAsync();
+                var template = await _printTemplateService.GetDefaultAsync(DocumentType.Report);
+                var content = template?.Content ?? PrintTemplateService.GetDefaultContent(DocumentType.Report);
 
-            var reportRows = await BuildReportRowsAsync((ReportType)SelectedReportIndex);
+                var fields = new Dictionary<string, string>
+                {
+                    { "CompanyName", company?.CompanyName ?? "" },
+                    { "Gstin", company?.Gstin ?? "" },
+                    { "Address", company?.Address ?? "" },
+                    { "City", company?.City ?? "" },
+                    { "State", company?.State ?? "" },
+                    { "PinCode", company?.PinCode ?? "" },
+                    { "Phone", company?.Phone ?? "" },
+                    { "Email", company?.Email ?? "" },
+                    { "ReportTitle", reportTitle },
+                    { "FromDate", FromDate.ToShortDateString() },
+                    { "ToDate", ToDate.ToShortDateString() },
+                    { "CreatedDate", DateTime.Now.ToString("g") }
+                };
 
-            var layout = PrintTemplateSerializer.TryDeserialize(content);
-            if (layout != null)
-            {
-                var document = PrintLayoutRenderer.BuildFixedDocument(layout, fields, reportRows);
-                var fixedPreview = new Views.DocumentPreviewWindow(document, $"Print - {reportTitle}");
-                fixedPreview.Show();
-                return;
+                var reportRows = await BuildReportRowsAsync((ReportType)SelectedReportIndex);
+
+                var layout = PrintTemplateSerializer.TryDeserialize(content);
+                if (layout != null)
+                {
+                    var document = PrintLayoutRenderer.BuildFixedDocument(layout, fields, reportRows);
+                    var fixedPreview = new Views.DocumentPreviewWindow(document, $"Print - {reportTitle}");
+                    fixedPreview.Show();
+                    return;
+                }
+
+                var lines = PrintTemplateService.Render(content, fields).Concat(reportRows).ToList();
+                var flowDocument = TemplateDocumentBuilder.Build(lines);
+                var preview = new Views.DocumentPreviewWindow(flowDocument, $"Print - {reportTitle}");
+                preview.Show();
             }
-
-            var lines = PrintTemplateService.Render(content, fields).Concat(reportRows).ToList();
-            var flowDocument = TemplateDocumentBuilder.Build(lines);
-            var preview = new Views.DocumentPreviewWindow(flowDocument, $"Print - {reportTitle}");
-            preview.Show();
+            catch (Exception ex)
+            {
+                ErrorMessage = ErrorReporter.Message($"Print '{Reports[SelectedReportIndex]}' report", ex);
+            }
         }
 
         private async Task<CompanyProfile?> LoadCompanyAsync()
@@ -169,8 +199,9 @@ namespace BetterAccounting.UI.ViewModels
             {
                 return await _companyRepository.GetAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorReporter.Log("Load company profile for report printing", ex);
                 return null;
             }
         }
@@ -268,6 +299,12 @@ namespace BetterAccounting.UI.ViewModels
         {
             get => _reportData;
             set => SetProperty(ref _reportData, value);
+        }
+
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
         }
 
         public ICommand GenerateReportCommand { get; }

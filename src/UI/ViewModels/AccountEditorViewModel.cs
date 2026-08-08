@@ -80,7 +80,7 @@ namespace BetterAccounting.UI.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Save failed: {ex.Message}";
+                StatusMessage = ErrorReporter.Message($"Save account '{Name}'", ex);
             }
             finally
             {

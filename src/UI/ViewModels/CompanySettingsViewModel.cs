@@ -20,6 +20,7 @@ namespace BetterAccounting.UI.ViewModels
         private string _phone = string.Empty;
         private string _email = string.Empty;
         private string _contactPerson = string.Empty;
+        private string _statusMessage = string.Empty;
 
         public CompanySettingsViewModel()
         {
@@ -37,36 +38,51 @@ namespace BetterAccounting.UI.ViewModels
 
         private async Task LoadAsync()
         {
-            var profile = await _repository.GetAsync();
-            if (profile is null)
-                return;
+            try
+            {
+                var profile = await _repository.GetAsync();
+                if (profile is null)
+                    return;
 
-            CompanyName = profile.CompanyName;
-            Gstin = profile.Gstin;
-            Address = profile.Address;
-            City = profile.City;
-            State = profile.State;
-            PinCode = profile.PinCode;
-            Phone = profile.Phone;
-            Email = profile.Email;
-            ContactPerson = profile.ContactPerson;
+                CompanyName = profile.CompanyName;
+                Gstin = profile.Gstin;
+                Address = profile.Address;
+                City = profile.City;
+                State = profile.State;
+                PinCode = profile.PinCode;
+                Phone = profile.Phone;
+                Email = profile.Email;
+                ContactPerson = profile.ContactPerson;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message("Load company profile", ex);
+            }
         }
 
         private async Task SaveAsync()
         {
-            var profile = new CompanyProfile
+            try
             {
-                CompanyName = CompanyName,
-                Gstin = Gstin,
-                Address = Address,
-                City = City,
-                State = State,
-                PinCode = PinCode,
-                Phone = Phone,
-                Email = Email,
-                ContactPerson = ContactPerson
-            };
-            await _repository.SaveAsync(profile);
+                var profile = new CompanyProfile
+                {
+                    CompanyName = CompanyName,
+                    Gstin = Gstin,
+                    Address = Address,
+                    City = City,
+                    State = State,
+                    PinCode = PinCode,
+                    Phone = Phone,
+                    Email = Email,
+                    ContactPerson = ContactPerson
+                };
+                await _repository.SaveAsync(profile);
+                StatusMessage = "Company profile saved.";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message("Save company profile", ex);
+            }
         }
 
         public string CompanyName { get => _companyName; set => SetProperty(ref _companyName, value); }
@@ -78,6 +94,12 @@ namespace BetterAccounting.UI.ViewModels
         public string Phone { get => _phone; set => SetProperty(ref _phone, value); }
         public string Email { get => _email; set => SetProperty(ref _email, value); }
         public string ContactPerson { get => _contactPerson; set => SetProperty(ref _contactPerson, value); }
+
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set => SetProperty(ref _statusMessage, value);
+        }
 
         public ICommand SaveCommand { get; }
     }

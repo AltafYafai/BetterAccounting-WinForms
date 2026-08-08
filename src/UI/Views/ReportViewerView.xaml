@@ -39,6 +39,9 @@
             <StatusBarItem>
                 <TextBlock Text="{Binding SelectedReportIndex}"/>
             </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="OrangeRed" TextWrapping="Wrap" FontWeight="Bold"/>
+            </StatusBarItem>
         </StatusBar>
     </Grid>
 </Window>

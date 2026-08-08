@@ -20,8 +20,9 @@ namespace BetterAccounting.UI.Models
             {
                 return new SolidColorBrush((Color)ColorConverter.ConvertFromString(value));
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorLog.Write($"Parse color '{value}'", ex);
                 return null;
             }
         }

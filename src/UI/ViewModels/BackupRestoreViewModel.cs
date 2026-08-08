@@ -28,8 +28,15 @@ namespace BetterAccounting.UI.ViewModels
 
         private async Task RefreshBackupsAsync()
         {
-            var backups = _backupService.GetAvailableBackups();
-            Backups = new ObservableCollection<string>(backups);
+            try
+            {
+                var backups = _backupService.GetAvailableBackups();
+                Backups = new ObservableCollection<string>(backups);
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message("Load list of backups", ex);
+            }
         }
 
         private async Task CreateBackupAsync()
@@ -44,7 +51,7 @@ namespace BetterAccounting.UI.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error: {ex.Message}";
+                StatusMessage = ErrorReporter.Message("Create backup", ex);
             }
             finally
             {
@@ -66,7 +73,7 @@ namespace BetterAccounting.UI.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error: {ex.Message}";
+                StatusMessage = ErrorReporter.Message($"Restore backup '{Path.GetFileName(SelectedBackup)}'", ex);
             }
             finally
             {

@@ -45,8 +45,9 @@ namespace BetterAccounting.UI.Models
                     ApplyTheme("Light");
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorLog.Write("Load saved theme preference", ex);
                 ApplyTheme("Light");
             }
         }

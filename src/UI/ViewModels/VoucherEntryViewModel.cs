@@ -29,6 +29,7 @@ namespace BetterAccounting.UI.ViewModels
         private bool _isDirty;
         private VoucherType _selectedVoucherType = VoucherType.Journal;
         private string _transporter = "";
+        private string _errorMessage = string.Empty;
 
         public VoucherEntryViewModel() : this(VoucherType.Journal)
         {
@@ -56,8 +57,15 @@ namespace BetterAccounting.UI.ViewModels
 
         private async Task LoadAccountsAsync()
         {
-            var allAccounts = await _accountRepository.GetAllAsync();
-            Accounts = new ObservableCollection<Account>(allAccounts);
+            try
+            {
+                var allAccounts = await _accountRepository.GetAllAsync();
+                Accounts = new ObservableCollection<Account>(allAccounts);
+            }
+            catch (Exception ex)
+            {
+                ErrorReporter.Log("Load account list for voucher entry", ex);
+            }
         }
 
         public async System.Threading.Tasks.Task SaveAsync()
@@ -75,8 +83,16 @@ namespace BetterAccounting.UI.ViewModels
                 CreatedAt = DateTime.UtcNow
             };
 
-            await _context.AddEntryAsync(entry);
-            OnSaveSuccess?.Invoke();
+            try
+            {
+                await _context.AddEntryAsync(entry);
+                ErrorMessage = string.Empty;
+                OnSaveSuccess?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ErrorReporter.Message($"Save voucher '{VoucherNumber}'", ex);
+            }
         }
 
         private void OpenPrintPreview()
@@ -238,6 +254,12 @@ namespace BetterAccounting.UI.ViewModels
         {
             get => _transporter;
             set => SetProperty(ref _transporter, value);
+        }
+
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
         }
 
         public bool IsDirty

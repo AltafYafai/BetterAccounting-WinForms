@@ -37,10 +37,17 @@ namespace BetterAccounting.UI.ViewModels
         private async Task GenerateAsync()
         {
             StatusMessage = "Loading...";
-            var records = await _catchUpService.GenerateCatchUpAsync(FromDate, ToDate);
-            Records = new ObservableCollection<CatchUpRecord>(records);
-            TotalOverPayment = records.Sum(r => r.OverPayment);
-            StatusMessage = $"Show accounts; overpaid (catch-up) total: {TotalOverPayment:C}";
+            try
+            {
+                var records = await _catchUpService.GenerateCatchUpAsync(FromDate, ToDate);
+                Records = new ObservableCollection<CatchUpRecord>(records);
+                TotalOverPayment = records.Sum(r => r.OverPayment);
+                StatusMessage = $"Show accounts; overpaid (catch-up) total: {TotalOverPayment:C}";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message("Generate catch-up report", ex);
+            }
         }
 
         public ObservableCollection<CatchUpRecord> Records

@@ -67,6 +67,10 @@ namespace BetterAccounting.UI.ViewModels
                     StatusMessage = "You are up to date.";
                 }
             }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message("Check for updates", ex);
+            }
             finally
             {
                 IsBusy = false;
@@ -101,7 +105,7 @@ namespace BetterAccounting.UI.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Download failed: {ex.Message}";
+                StatusMessage = ErrorReporter.Message("Download update installer", ex);
             }
             finally
             {
@@ -124,8 +128,9 @@ namespace BetterAccounting.UI.ViewModels
                 PruneDirectory(backupDir, keep: 10);
                 return path;
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorReporter.Log("Create pre-update backup", ex);
                 return null;
             }
         }
@@ -142,8 +147,9 @@ namespace BetterAccounting.UI.ViewModels
                 foreach (var file in files)
                     File.Delete(file);
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorReporter.Log("Prune old update backups", ex);
             }
         }
 
@@ -191,8 +197,9 @@ namespace BetterAccounting.UI.ViewModels
             {
                 await File.WriteAllLinesAsync(cmdPath, script);
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorReporter.Log("Write apply-update script", ex);
                 StatusMessage = "No write access where the app is installed, so it cannot replace itself. Close the app and run the downloaded file manually.";
                 return;
             }
@@ -206,8 +213,9 @@ namespace BetterAccounting.UI.ViewModels
                     CreateNoWindow = true
                 });
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorReporter.Log("Start the apply-update script", ex);
                 StatusMessage = "Could not start the updater. Close the app and run the downloaded file manually.";
                 return;
             }
@@ -230,8 +238,9 @@ namespace BetterAccounting.UI.ViewModels
                     UseShellExecute = true
                 });
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorReporter.Log("Open downloaded update in Explorer", ex);
             }
         }
 
@@ -249,8 +258,9 @@ namespace BetterAccounting.UI.ViewModels
                 var startInfo = new System.Diagnostics.ProcessStartInfo { FileName = url, UseShellExecute = true };
                 System.Diagnostics.Process.Start(startInfo);
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorReporter.Log("Open browser", ex);
             }
         }
 

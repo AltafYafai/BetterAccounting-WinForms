@@ -78,6 +78,10 @@ namespace BetterAccounting.UI.ViewModels
                 StatusMessage = $"Added and switched to '{company.Name}'. Fill in its Company Profile to personalise invoices.";
                 LoadItems();
             }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message($"Create company '{NewCompanyName}'", ex);
+            }
             finally
             {
                 IsBusy = false;

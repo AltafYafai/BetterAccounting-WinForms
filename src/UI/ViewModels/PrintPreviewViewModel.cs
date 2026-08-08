@@ -49,8 +49,9 @@ namespace BetterAccounting.UI.ViewModels
                 var repository = new CompanyProfileRepository(context.Connection);
                 return repository.GetAsync().GetAwaiter().GetResult();
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorReporter.Log("Load company profile for print preview", ex);
                 return null;
             }
         }
@@ -65,8 +66,9 @@ namespace BetterAccounting.UI.ViewModels
                 var repository = new PrintTemplateRepository(context.Connection);
                 return repository.GetDefaultAsync(DocumentType.Invoice).GetAwaiter().GetResult();
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorReporter.Log("Load print template for print preview", ex);
                 return null;
             }
         }
@@ -80,26 +82,33 @@ namespace BetterAccounting.UI.ViewModels
 
         private void Print()
         {
-            var count = CopyCount;
-            var dialog = new PrintDialog();
-            if (dialog.ShowDialog() != true)
-                return;
-
-            for (var i = 1; i <= count; i++)
+            try
             {
-                var label = i == 1 ? "ORIGINAL" : i == 2 ? "DUPLICATE" : "TRIPLICATE";
-                if (UsesFixedDocument && _layout != null)
+                var count = CopyCount;
+                var dialog = new PrintDialog();
+                if (dialog.ShowDialog() != true)
+                    return;
+
+                for (var i = 1; i <= count; i++)
                 {
-                    var document = BuildLayoutDocument(label);
-                    dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,
-                        $"Voucher {_entry.VoucherNo} - {label}");
+                    var label = i == 1 ? "ORIGINAL" : i == 2 ? "DUPLICATE" : "TRIPLICATE";
+                    if (UsesFixedDocument && _layout != null)
+                    {
+                        var document = BuildLayoutDocument(label);
+                        dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,
+                            $"Voucher {_entry.VoucherNo} - {label}");
+                    }
+                    else
+                    {
+                        var document = VoucherDocumentBuilder.Build(_entry, _company, label, _template);
+                        dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,
+                            $"Voucher {_entry.VoucherNo} - {label}");
+                    }
                 }
-                else
-                {
-                    var document = VoucherDocumentBuilder.Build(_entry, _company, label, _template);
-                    dialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator,
-                        $"Voucher {_entry.VoucherNo} - {label}");
-                }
+            }
+            catch (Exception ex)
+            {
+                ErrorReporter.Show($"Print voucher '{_entry.VoucherNo}'", ex);
             }
         }
 

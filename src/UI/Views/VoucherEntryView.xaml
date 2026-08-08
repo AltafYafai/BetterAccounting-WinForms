@@ -60,6 +60,11 @@
         <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" 
                  Text="{Binding Narration}" AcceptsReturn="True" Height="60" Margin="5,10,0,0"/>
 
+        <!-- Errors -->
+        <TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="4"
+                   Text="{Binding ErrorMessage}" Foreground="OrangeRed" TextWrapping="Wrap"
+                   VerticalAlignment="Top" Margin="0,8,0,0"/>
+
         <!-- Buttons -->
         <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="Print Preview" Command="{Binding OpenPrintPreviewCommand}" Padding="10,5" Margin="5,0"/>

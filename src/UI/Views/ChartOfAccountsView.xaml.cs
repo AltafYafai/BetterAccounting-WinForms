@@ -1,5 +1,6 @@
 using BetterAccounting.Core.Data.Models;
 using BetterAccounting.Core.Services.Data;
+using BetterAccounting.UI.Models;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,8 +25,15 @@ namespace BetterAccounting.UI.Views
 
         private async Task LoadAccountsAsync()
         {
-            var accounts = await _repository.GetAllAsync();
-            AccountsGrid.ItemsSource = accounts;
+            try
+            {
+                var accounts = await _repository.GetAllAsync();
+                AccountsGrid.ItemsSource = accounts;
+            }
+            catch (Exception ex)
+            {
+                ErrorReporter.Show("Load chart of accounts", ex);
+            }
         }
 
         private void AddAccount_Click(object sender, RoutedEventArgs e)
@@ -45,7 +53,7 @@ namespace BetterAccounting.UI.Views
                 _ = LoadAccountsAsync();
         }
 
-        private void DeleteAccount_Click(object sender, RoutedEventArgs e)
+        private async void DeleteAccount_Click(object sender, RoutedEventArgs e)
         {
             if (AccountsGrid.SelectedItem is not Core.Services.Data.Account selected)
                 return;
@@ -59,8 +67,15 @@ namespace BetterAccounting.UI.Views
             if (result != MessageBoxResult.Yes)
                 return;
 
-            _ = _repository.DeleteAsync(selected.Id);
-            _ = LoadAccountsAsync();
+            try
+            {
+                await _repository.DeleteAsync(selected.Id);
+                await LoadAccountsAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorReporter.Show($"Delete account '{selected.Name}'", ex);
+            }
         }
     }
 }

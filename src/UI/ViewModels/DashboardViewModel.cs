@@ -100,6 +100,10 @@ namespace BetterAccounting.UI.ViewModels
                 await RefreshAsync();
                 StatusMessage = $"Active company: {target.Name}";
             }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message($"Switch to company '{target.Name}'", ex);
+            }
             finally
             {
                 IsBusy = false;
@@ -109,13 +113,20 @@ namespace BetterAccounting.UI.ViewModels
 
         private async Task RefreshAsync()
         {
-            var records = await _trialBalanceService.GenerateTrialBalanceAsync();
-            TrialBalance = new ObservableCollection<TrialBalanceRecord>(records);
+            try
+            {
+                var records = await _trialBalanceService.GenerateTrialBalanceAsync();
+                TrialBalance = new ObservableCollection<TrialBalanceRecord>(records);
 
-            var (assets, liabilities, equity) = await _financialStatementService.GetBalanceSheetTotalsAsync();
-            TotalAssets = assets;
-            TotalLiabilities = liabilities;
-            TotalEquity = equity;
+                var (assets, liabilities, equity) = await _financialStatementService.GetBalanceSheetTotalsAsync();
+                TotalAssets = assets;
+                TotalLiabilities = liabilities;
+                TotalEquity = equity;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message("Load dashboard summary", ex);
+            }
         }
 
         private void SwitchTheme()

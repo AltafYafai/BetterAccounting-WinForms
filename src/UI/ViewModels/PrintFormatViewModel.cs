@@ -77,8 +77,9 @@ namespace BetterAccounting.UI.ViewModels
             {
                 _company = await _companyRepository.GetAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                ErrorReporter.Log("Load company profile for print designer", ex);
             }
 
             await _service.EnsureDefaultsAsync();
@@ -87,11 +88,18 @@ namespace BetterAccounting.UI.ViewModels
 
         private async Task LoadTemplatesAsync()
         {
-            var list = await _service.GetTemplatesAsync(SelectedDocumentType);
-            Templates = new ObservableCollection<PrintTemplate>(list);
-            RefreshAvailableTokens();
-            UpdateSampleFields();
-            SelectedTemplate = Templates.FirstOrDefault(t => t.IsDefault) ?? Templates.FirstOrDefault();
+            try
+            {
+                var list = await _service.GetTemplatesAsync(SelectedDocumentType);
+                Templates = new ObservableCollection<PrintTemplate>(list);
+                RefreshAvailableTokens();
+                UpdateSampleFields();
+                SelectedTemplate = Templates.FirstOrDefault(t => t.IsDefault) ?? Templates.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message($"Load {SelectedDocumentType} print formats", ex);
+            }
         }
 
         private void RefreshAvailableTokens()
@@ -114,34 +122,41 @@ namespace BetterAccounting.UI.ViewModels
                 return;
 
             var content = PrintTemplateSerializer.Serialize(Layout);
-            int? savedId;
-            if (SelectedTemplate is null)
+            try
             {
-                var template = new PrintTemplate
+                int? savedId;
+                if (SelectedTemplate is null)
                 {
-                    Name = TemplateName.Trim(),
-                    DocumentType = SelectedDocumentType,
-                    Content = content
-                };
-                await _service.AddAsync(template);
-                savedId = template.Id;
-                StatusMessage = $"Format '{template.Name}' was saved.";
-            }
-            else
-            {
-                SelectedTemplate.Name = TemplateName.Trim();
-                SelectedTemplate.Content = content;
-                await _service.UpdateAsync(SelectedTemplate);
-                savedId = SelectedTemplate.Id;
-                StatusMessage = $"Format '{SelectedTemplate.Name}' was updated.";
-            }
+                    var template = new PrintTemplate
+                    {
+                        Name = TemplateName.Trim(),
+                        DocumentType = SelectedDocumentType,
+                        Content = content
+                    };
+                    await _service.AddAsync(template);
+                    savedId = template.Id;
+                    StatusMessage = $"Format '{template.Name}' was saved.";
+                }
+                else
+                {
+                    SelectedTemplate.Name = TemplateName.Trim();
+                    SelectedTemplate.Content = content;
+                    await _service.UpdateAsync(SelectedTemplate);
+                    savedId = SelectedTemplate.Id;
+                    StatusMessage = $"Format '{SelectedTemplate.Name}' was updated.";
+                }
 
-            await LoadTemplatesAsync();
-            if (savedId.HasValue)
+                await LoadTemplatesAsync();
+                if (savedId.HasValue)
+                {
+                    var saved = Templates.FirstOrDefault(t => t.Id == savedId.Value);
+                    if (saved != null)
+                        SelectedTemplate = saved;
+                }
+            }
+            catch (Exception ex)
             {
-                var saved = Templates.FirstOrDefault(t => t.Id == savedId.Value);
-                if (saved != null)
-                    SelectedTemplate = saved;
+                StatusMessage = ErrorReporter.Message($"Save print format '{TemplateName.Trim()}'", ex);
             }
         }
 
@@ -150,9 +165,16 @@ namespace BetterAccounting.UI.ViewModels
             if (SelectedTemplate is null)
                 return;
 
-            await _service.SetDefaultAsync(SelectedTemplate.Id, SelectedDocumentType);
-            StatusMessage = $"'{SelectedTemplate.Name}' is now the default {SelectedDocumentType} format.";
-            await LoadTemplatesAsync();
+            try
+            {
+                await _service.SetDefaultAsync(SelectedTemplate.Id, SelectedDocumentType);
+                StatusMessage = $"'{SelectedTemplate.Name}' is now the default {SelectedDocumentType} format.";
+                await LoadTemplatesAsync();
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message($"Set '{SelectedTemplate.Name}' as default {SelectedDocumentType} format", ex);
+            }
         }
 
         private async Task DeleteTemplateAsync()
@@ -160,10 +182,17 @@ namespace BetterAccounting.UI.ViewModels
             if (SelectedTemplate is null)
                 return;
 
-            await _service.DeleteAsync(SelectedTemplate.Id);
-            StatusMessage = "Format deleted.";
-            SelectedTemplate = null;
-            await LoadTemplatesAsync();
+            try
+            {
+                await _service.DeleteAsync(SelectedTemplate.Id);
+                StatusMessage = "Format deleted.";
+                SelectedTemplate = null;
+                await LoadTemplatesAsync();
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message($"Delete print format '{SelectedTemplate.Name}'", ex);
+            }
         }
 
         private void InsertToken(object token)

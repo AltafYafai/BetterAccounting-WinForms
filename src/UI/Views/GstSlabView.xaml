@@ -6,6 +6,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
@@ -25,5 +26,7 @@
                 <DataGridTextColumn Header="Active" Binding="{Binding IsActive}" Width="90"/>
             </DataGrid.Columns>
         </DataGrid>
+
+        <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" Foreground="OrangeRed" TextWrapping="Wrap" Margin="0,8,0,0"/>
     </Grid>
 </Window>

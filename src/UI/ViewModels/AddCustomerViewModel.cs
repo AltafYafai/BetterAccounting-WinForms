@@ -69,6 +69,10 @@ namespace BetterAccounting.UI.ViewModels
                     StatusMessage = result.ErrorMessage;
                 }
             }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message("Look up GSTIN", ex);
+            }
             finally
             {
                 IsBusy = false;
@@ -95,6 +99,10 @@ namespace BetterAccounting.UI.ViewModels
                 await _repository.AddAsync(customer);
                 StatusMessage = "Customer saved.";
                 ClearForm();
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ErrorReporter.Message($"Save customer '{Name}'", ex);
             }
             finally
             {
