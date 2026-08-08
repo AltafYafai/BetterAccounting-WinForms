@@ -50,7 +50,7 @@ namespace BetterAccounting.UI.Controls
 
             _moveThumb = new Thumb
             {
-                Cursor = Cursors.SizeAll,
+                Cursor = new Cursor(StandardCursorType.SizeAll),
                 Background = Brushes.Transparent,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment = VerticalAlignment.Stretch
@@ -107,14 +107,14 @@ namespace BetterAccounting.UI.Controls
             overlay.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             overlay.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(ThumbSize) });
 
-            AddThumb(overlay, 0, 0, ResizeEdge.NW, Cursors.SizeNWSE);
-            AddThumb(overlay, 0, 1, ResizeEdge.N, Cursors.SizeNS);
-            AddThumb(overlay, 0, 2, ResizeEdge.NE, Cursors.SizeNESW);
-            AddThumb(overlay, 1, 0, ResizeEdge.W, Cursors.SizeWE);
-            AddThumb(overlay, 1, 2, ResizeEdge.E, Cursors.SizeWE);
-            AddThumb(overlay, 2, 0, ResizeEdge.SW, Cursors.SizeNESW);
-            AddThumb(overlay, 2, 1, ResizeEdge.S, Cursors.SizeNS);
-            AddThumb(overlay, 2, 2, ResizeEdge.SE, Cursors.SizeNWSE);
+            AddThumb(overlay, 0, 0, ResizeEdge.NW, new Cursor(StandardCursorType.TopLeftCorner));
+            AddThumb(overlay, 0, 1, ResizeEdge.N, new Cursor(StandardCursorType.SizeNorthSouth));
+            AddThumb(overlay, 0, 2, ResizeEdge.NE, new Cursor(StandardCursorType.TopRightCorner));
+            AddThumb(overlay, 1, 0, ResizeEdge.W, new Cursor(StandardCursorType.SizeWestEast));
+            AddThumb(overlay, 1, 2, ResizeEdge.E, new Cursor(StandardCursorType.SizeWestEast));
+            AddThumb(overlay, 2, 0, ResizeEdge.SW, new Cursor(StandardCursorType.TopRightCorner));
+            AddThumb(overlay, 2, 1, ResizeEdge.S, new Cursor(StandardCursorType.SizeNorthSouth));
+            AddThumb(overlay, 2, 2, ResizeEdge.SE, new Cursor(StandardCursorType.TopLeftCorner));
 
             _root.Children.Add(overlay);
         }
@@ -240,7 +240,7 @@ namespace BetterAccounting.UI.Controls
             _selectionBorder.IsVisible = _isSelected;
             foreach (var thumb in _resizeThumbs)
                 thumb.IsVisible = _isSelected && _item.Rotation == 0;
-            _moveThumb.Cursor = _isSelected ? Cursors.SizeAll : Cursors.Hand;
+            _moveThumb.Cursor = _isSelected ? new Cursor(StandardCursorType.SizeAll) : new Cursor(StandardCursorType.Hand);
             RefreshZIndex();
         }
 

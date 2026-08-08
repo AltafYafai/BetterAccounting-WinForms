@@ -1,5 +1,6 @@
 using System;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
 using Avalonia.Media;
 using BetterAccounting.UI.Models;
@@ -32,7 +33,7 @@ namespace BetterAccounting.UI.Views
                     Background = Brushes.White,
                     BorderBrush = new SolidColorBrush(Color.Parse("#CCCCCC")),
                     BorderThickness = new Thickness(1),
-                    BoxShadow = new BoxShadow { OffsetX = 2, OffsetY = 3, Blur = 6 }
+                    BoxShadow = new BoxShadows(new BoxShadow { OffsetX = 2, OffsetY = 3, Blur = 6, Color = Color.FromArgb(0x55, 0, 0, 0) })
                 };
                 _pagesPanel.Children.Add(shadow);
             }
